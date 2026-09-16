@@ -1,1121 +1,598 @@
-```js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-
-/* ==========================================
-   FIREBASE
-========================================== */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAc8_gEr9O26MTmECEEqhUPSdqpbpOHBxo",
-  authDomain: "bsit-na-1a-j.firebaseapp.com",
-  projectId: "bsit-na-1a-j",
-  storageBucket: "bsit-na-1a-j.firebasestorage.app",
-  messagingSenderId: "154328167720",
-  appId: "1:154328167720:web:a7ecc2af99128f09ae4c1d"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-
-/* ==========================================
-   VARIABLES
-========================================== */
-
-const $ = id => document.getElementById(id);
-
-const subjects = [
-  "All",
-  "CC",
-  "PLF",
-  "STS",
-  "NSTP",
-  "PE"
-];
-
-let currentFilter = "All";
-let announcements = [];
-
-
-/* ==========================================
-   HELPERS
-========================================== */
-
-function esc(value = "") {
-  return String(value).replace(/[&<>'"]/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-    '"': "&quot;"
-  }[c]));
-}
-
-function msg(id, text, error = false) {
-  const element = $(id);
-
-  if (!element) return;
-
-  element.textContent = text;
-  element.style.color = error ? "#7b1018" : "#666";
-}
-
-function showLoading(text) {
-  const badge = $("accountBadge");
-
-  if (badge) {
-    badge.textContent = text;
-  }
-}
-
-function hideLoading() {
-  const badge = $("accountBadge");
-
-  if (!badge) return;
-
-  if (!auth.currentUser) {
-    badge.textContent = "Not signed in";
-  } else {
-    badge.textContent = auth.currentUser.email || "Signed in";
-  }
-}
-
-
-/* ==========================================
-   SCREEN CONTROL
-========================================== */
-
-function setScreen(mode) {
-  $("loginSection").classList.toggle(
-    "hidden",
-    mode !== "login"
-  );
-
-  $("registerSection").classList.toggle(
-    "hidden",
-    mode !== "register"
-  );
-
-  $("studentContent").classList.toggle(
-    "hidden",
-    mode !== "student"
-  );
-
-  $("adminContent").classList.toggle(
-    "hidden",
-    mode !== "admin"
-  );
-
-  $("logoutBtn").classList.toggle(
-    "hidden",
-    !["student", "admin"].includes(mode)
-  );
-}
-
-
-/* ==========================================
-   PASSWORD EYES
-========================================== */
-
-const eyeClosed = `
-<svg xmlns="http://www.w3.org/2000/svg"
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2">
-<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
-<circle cx="12" cy="12" r="3"/>
-</svg>
-`;
-
-const eyeOpen = `
-<svg xmlns="http://www.w3.org/2000/svg"
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2">
-<path d="M3 3l18 18"/>
-<path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
-<path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a17.4 17.4 0 0 1-3.2 4.2"/>
-<path d="M6.2 6.2C3.5 8.2 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1"/>
-</svg>
-`;
-
-const eyeClosedIcon =
-  "data:image/svg+xml;charset=UTF-8," +
-  encodeURIComponent(eyeClosed);
-
-const eyeOpenIcon =
-  "data:image/svg+xml;charset=UTF-8," +
-  encodeURIComponent(eyeOpen);
-
-
-function setupPasswordToggle(
-  buttonId,
-  inputId,
-  iconId
-) {
-  const button = $(buttonId);
-  const input = $(inputId);
-  const icon = $(iconId);
-
-  if (!button || !input || !icon) return;
-
-  icon.src = eyeClosedIcon;
-  icon.alt = "Show password";
-
-  button.setAttribute(
-    "aria-label",
-    "Show password"
-  );
-
-  button.addEventListener("click", () => {
-    const isPassword =
-      input.type === "password";
-
-    if (isPassword) {
-      input.type = "text";
-      icon.src = eyeOpenIcon;
-      icon.alt = "Hide password";
-
-      button.setAttribute(
-        "aria-label",
-        "Hide password"
-      );
-    } else {
-      input.type = "password";
-      icon.src = eyeClosedIcon;
-      icon.alt = "Show password";
-
-      button.setAttribute(
-        "aria-label",
-        "Show password"
-      );
-    }
-  });
-}
-
-setupPasswordToggle(
-  "toggleLoginPassword",
-  "password",
-  "loginEyeIcon"
-);
-
-setupPasswordToggle(
-  "toggleAdminPassword",
-  "adminPassword",
-  "adminEyeIcon"
-);
-
-setupPasswordToggle(
-  "toggleRegisterPassword",
-  "registerPassword",
-  "registerEyeIcon"
-);
-
-setupPasswordToggle(
-  "toggleConfirmPassword",
-  "registerConfirmPassword",
-  "confirmEyeIcon"
-);
-
-
-/* ==========================================
-   LOGIN TABS
-========================================== */
-
-$("studentTab").addEventListener(
-  "click",
-  () => {
-    $("studentTab").classList.add("active");
-    $("adminTab").classList.remove("active");
-
-    $("studentLoginForm").classList.remove("hidden");
-    $("adminLoginForm").classList.add("hidden");
-
-    $("loginTitle").textContent =
-      "Student Login";
-
-    $("loginHint").textContent =
-      "Sign in to view class announcements.";
-
-    $("studentRegisterBox")
-      .classList
-      .remove("hidden");
-
-    msg("loginMessage", "");
-  }
-);
-
-
-$("adminTab").addEventListener(
-  "click",
-  () => {
-    $("adminTab").classList.add("active");
-    $("studentTab").classList.remove("active");
-
-    $("adminLoginForm").classList.remove("hidden");
-    $("studentLoginForm").classList.add("hidden");
-
-    $("loginTitle").textContent =
-      "Admin Login";
-
-    $("loginHint").textContent =
-      "Sign in using your administrator account.";
-
-    $("studentRegisterBox")
-      .classList
-      .add("hidden");
-
-    msg("loginMessage", "");
-  }
-);
-
-
-/* ==========================================
-   CREATE ACCOUNT
-========================================== */
-
-$("registerBtn").addEventListener(
-  "click",
-  () => {
-    msg("loginMessage", "");
-    setScreen("register");
-  }
-);
-
-
-$("backToLoginBtn").addEventListener(
-  "click",
-  () => {
-    msg("registerMessage", "");
-
-    setScreen("login");
-
-    $("studentTab").classList.add("active");
-    $("adminTab").classList.remove("active");
-
-    $("studentLoginForm").classList.remove("hidden");
-    $("adminLoginForm").classList.add("hidden");
-
-    $("loginTitle").textContent =
-      "Student Login";
-
-    $("loginHint").textContent =
-      "Sign in to view class announcements.";
-
-    $("studentRegisterBox")
-      .classList
-      .remove("hidden");
-  }
-);
-
-
-/* ==========================================
-   STUDENT LOGIN
-========================================== */
-
-$("studentLoginForm").addEventListener(
-  "submit",
-  async e => {
-    e.preventDefault();
-
-    msg("loginMessage", "");
-    showLoading("Signing in...");
-
-    try {
-      await signInWithEmailAndPassword(
-        auth,
-        $("email").value.trim(),
-        $("password").value
-      );
-    } catch (err) {
-      hideLoading();
-      msg(
-        "loginMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   ADMIN LOGIN
-========================================== */
-
-$("adminLoginForm").addEventListener(
-  "submit",
-  async e => {
-    e.preventDefault();
-
-    msg("loginMessage", "");
-    showLoading("Signing in...");
-
-    try {
-      await signInWithEmailAndPassword(
-        auth,
-        $("adminEmail").value.trim(),
-        $("adminPassword").value
-      );
-    } catch (err) {
-      hideLoading();
-
-      msg(
-        "loginMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   REGISTER
-========================================== */
-
-$("registerForm").addEventListener(
-  "submit",
-  async e => {
-    e.preventDefault();
-
-    const username =
-      $("registerUsername").value.trim();
-
-    const email =
-      $("registerEmail").value.trim();
-
-    const password =
-      $("registerPassword").value;
-
-    const confirm =
-      $("registerConfirmPassword").value;
-
-    if (password !== confirm) {
-      msg(
-        "registerMessage",
-        "Passwords do not match.",
-        true
-      );
-
-      return;
-    }
-
-    showLoading("Creating account...");
-
-    try {
-      const cred =
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      await setDoc(
-        doc(db, "users", cred.user.uid),
-        {
-          username: username,
-          email: cred.user.email,
-          role: "student",
-          createdAt: serverTimestamp()
-        }
-      );
-
-      hideLoading();
-
-      msg(
-        "registerMessage",
-        "Account created successfully."
-      );
-
-    } catch (err) {
-      hideLoading();
-
-      msg(
-        "registerMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   LOGOUT
-========================================== */
-
-$("logoutBtn").addEventListener(
-  "click",
-  async () => {
-    try {
-      await signOut(auth);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-);
-
-
-/* ==========================================
-   REFRESH
-========================================== */
-
-$("refreshBtn").addEventListener(
-  "click",
-  loadAnnouncements
-);
-
-
-/* ==========================================
-   SEED
-========================================== */
-
-$("seedBtn").addEventListener(
-  "click",
-  seedCurrentAnnouncements
-);
-
-
-/* ==========================================
-   ERROR MESSAGES
-========================================== */
-
-function friendlyError(err) {
-  const code = err?.code || "";
-
-  const map = {
-    "auth/invalid-credential":
-      "Incorrect email or password.",
-
-    "auth/invalid-email":
-      "Please enter a valid email.",
-
-    "auth/email-already-in-use":
-      "That email is already registered.",
-
-    "auth/weak-password":
-      "Password should be at least 6 characters.",
-
-    "auth/network-request-failed":
-      "Network error. Please check your internet connection.",
-
-    "auth/api-key-not-valid":
-      "Firebase API key is invalid. Check the Firebase configuration.",
-
-    "permission-denied":
-      "You do not have permission to do that."
-  };
-
-  return (
-    map[code] ||
-    err?.message ||
-    "Something went wrong. Please try again."
-  );
-}
-
-
-/* ==========================================
-   AUTH STATE
-========================================== */
-
-onAuthStateChanged(
-  auth,
-  async user => {
-    hideLoading();
-
-    if (!user) {
-      $("accountBadge").textContent =
-        "Not signed in";
-
-      setScreen("login");
-
-      return;
-    }
-
-    $("accountBadge").textContent =
-      user.email || "Signed in";
-
-    try {
-      const adminSnap =
-        await getDoc(
-          doc(db, "admins", user.uid)
-        );
-
-      if (
-        adminSnap.exists() &&
-        adminSnap.data().role === "admin"
-      ) {
-        setScreen("admin");
-
-        populateSubjectSelect();
-
-        await loadAdminList();
-
-      } else {
-        setScreen("student");
-
-        await loadAnnouncements();
-      }
-
-    } catch (err) {
-      console.error(
-        "Auth/Firestore error:",
-        err
-      );
-
-      setScreen("student");
-
-      await loadAnnouncements();
-    }
-  }
-);
-
-
-/* ==========================================
-   FILTERS
-========================================== */
-
-function renderFilters() {
-  $("subjectFilters").innerHTML =
-    subjects
-      .map(
-        s => `
-          <button
-            class="filter-btn ${
-              currentFilter === s
-                ? "active"
-                : ""
-            }"
-            data-subject="${esc(s)}"
-          >
-            ${esc(s)}
-          </button>
-        `
-      )
-      .join("");
-
-  document
-    .querySelectorAll(".filter-btn")
-    .forEach(btn => {
-      btn.addEventListener(
-        "click",
-        () => {
-          currentFilter =
-            btn.dataset.subject;
-
-          renderFilters();
-          renderAnnouncements();
-        }
-      );
-    });
-}
-
-
-/* ==========================================
-   LOAD ANNOUNCEMENTS
-========================================== */
-
-async function loadAnnouncements() {
-  try {
-    const snap =
-      await getDocs(
-        collection(db, "announcements")
-      );
-
-    announcements =
-      snap.docs
-        .map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-        .sort(
-          (a, b) =>
-            String(a.dueDate || "")
-              .localeCompare(
-                String(b.dueDate || "")
-              )
-        );
-
-    renderFilters();
-    renderAnnouncements();
-
-  } catch (err) {
-    console.error(
-      "Unable to load announcements:",
-      err
-    );
-
-    $("announcementGrid").innerHTML = `
-      <p>Unable to load announcements.</p>
-    `;
-  }
-}
-
-
-/* ==========================================
-   DISPLAY ANNOUNCEMENTS
-========================================== */
-
-function renderAnnouncements() {
-  const list =
-    currentFilter === "All"
-      ? announcements
-      : announcements.filter(
-          a =>
-            a.subject === currentFilter
-        );
-
-  if (!list.length) {
-    $("announcementGrid").innerHTML = `
-      <p>No announcements available.</p>
-    `;
-
-    return;
-  }
-
-  $("announcementGrid").innerHTML =
-    list
-      .map(
-        a => `
-          <article class="announcement-card">
-            <div class="announcement-subject">
-              ${esc(a.subject || "CLASS")}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BSIT NA 1A — Important Announcements</title>
+
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+<header class="site-header">
+
+    <div>
+        <h1>BSIT NA 1A</h1>
+        <p>IMPORTANT ANNOUNCEMENTS.</p>
+    </div>
+
+    <div class="account-area">
+        <span id="accountBadge" class="account-badge">
+            Not signed in
+        </span>
+
+        <button
+            id="logoutBtn"
+            class="btn btn-dark hidden">
+            Logout
+        </button>
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <!-- LOGIN -->
+
+    <section id="loginSection" class="login-card">
+
+        <div class="login-tabs">
+
+            <button id="studentTab" class="tab active">
+                Student
+            </button>
+
+            <button id="adminTab" class="tab">
+                Admin
+            </button>
+
+        </div>
+
+
+        <h2 id="loginTitle">
+            Student Login
+        </h2>
+
+        <p id="loginHint" class="small-text">
+            Sign in to view class announcements.
+        </p>
+
+
+        <!-- STUDENT LOGIN -->
+
+        <form id="studentLoginForm">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+            >
+
+
+            <label for="password">
+                Password
+            </label>
+
+            <div class="password-field">
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    class="eye-btn"
+                    id="toggleLoginPassword"
+                    aria-label="Show password">
+
+                    <img
+                        src=""
+                        alt="Show password"
+                        id="loginEyeIcon">
+
+                </button>
+
             </div>
 
-            <h3>${esc(a.title || "")}</h3>
 
-            <p>${esc(a.details || "")}</p>
+            <button
+                type="submit"
+                class="btn btn-red">
 
-            <strong>Due:</strong>
-            ${esc(formatDate(a.dueDate))}
-          </article>
-        `
-      )
-      .join("");
-}
+                Sign In
 
+            </button>
 
-/* ==========================================
-   SUBJECT SELECT
-========================================== */
-
-function populateSubjectSelect() {
-  $("subjectInput").innerHTML =
-    subjects
-      .filter(s => s !== "All")
-      .map(
-        s =>
-          `<option value="${esc(s)}">${esc(s)}</option>`
-      )
-      .join("");
-}
+        </form>
 
 
-/* ==========================================
-   DATE
-========================================== */
+        <!-- ADMIN LOGIN -->
 
-function formatDate(date) {
-  if (!date) {
-    return "No date";
-  }
+        <form id="adminLoginForm" class="hidden">
 
-  const d =
-    new Date(date + "T00:00:00");
+            <label for="adminEmail">
+                Email
+            </label>
 
-  return isNaN(d)
-    ? date
-    : d.toLocaleDateString(
-        "en-US",
-        {
-          month: "short",
-          day: "numeric",
-          year: "numeric"
-        }
-      );
-}
+            <input
+                id="adminEmail"
+                type="email"
+                placeholder="Enter your email"
+                required
+            >
 
 
-/* ==========================================
-   ADD / EDIT ANNOUNCEMENT
-========================================== */
+            <label for="adminPassword">
+                Password
+            </label>
 
-$("announcementForm").addEventListener(
-  "submit",
-  async e => {
-    e.preventDefault();
+            <div class="password-field">
 
-    const id =
-      $("announcementId").value;
+                <input
+                    id="adminPassword"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                >
 
-    const data = {
-      subject:
-        $("subjectInput").value,
-
-      title:
-        $("titleInput").value.trim(),
-
-      details:
-        $("detailsInput").value.trim(),
-
-      dueDate:
-        $("dateInput").value,
-
-      updatedAt:
-        serverTimestamp()
-    };
-
-    try {
-      if (id) {
-        await updateDoc(
-          doc(db, "announcements", id),
-          data
-        );
-      } else {
-        await addDoc(
-          collection(db, "announcements"),
-          {
-            ...data,
-            createdAt:
-              serverTimestamp()
-          }
-        );
-      }
-
-      msg(
-        "adminMessage",
-        "Announcement saved."
-      );
-
-      resetAnnouncementForm();
-
-      await loadAdminList();
-
-    } catch (err) {
-      console.error(err);
-
-      msg(
-        "adminMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   ADMIN LIST
-========================================== */
-
-async function loadAdminList() {
-  try {
-    const snap =
-      await getDocs(
-        collection(db, "announcements")
-      );
-
-    const list =
-      snap.docs
-        .map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-        .sort(
-          (a, b) =>
-            String(a.dueDate || "")
-              .localeCompare(
-                String(b.dueDate || "")
-              )
-        );
-
-    $("adminList").innerHTML =
-      list.length
-        ? list
-            .map(
-              a => `
-                <div class="admin-item">
-                  <span>
-                    ${esc(a.subject || "")}
-                    <strong>
-                      ${esc(a.title || "")}
-                    </strong>
-                    ${esc(
-                      formatDate(a.dueDate)
-                    )}
-                  </span>
-
-                  <button
+                <button
                     type="button"
-                    data-edit="${a.id}"
-                  >
-                    Edit
-                  </button>
+                    class="eye-btn"
+                    id="toggleAdminPassword"
+                    aria-label="Show password">
 
-                  <button
+                    <img
+                        src=""
+                        alt="Show password"
+                        id="adminEyeIcon">
+
+                </button>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-red">
+
+                Sign In
+
+            </button>
+
+        </form>
+
+
+        <!-- CREATE ACCOUNT -->
+
+        <div id="studentRegisterBox">
+
+            <p class="small-text">
+                Don't have a student account?
+            </p>
+
+            <button
+                id="registerBtn"
+                class="btn btn-outline">
+
+                Create Student Account
+
+            </button>
+
+        </div>
+
+
+        <p
+            id="loginMessage"
+            class="message">
+        </p>
+
+    </section>
+
+
+
+    <!-- REGISTER SECTION -->
+
+    <section
+        id="registerSection"
+        class="login-card hidden">
+
+        <h2>
+            Create Student Account
+        </h2>
+
+        <p class="small-text">
+            Create your account to access class announcements.
+        </p>
+
+
+        <form id="registerForm">
+
+            <label for="registerUsername">
+                Username
+            </label>
+
+            <input
+                id="registerUsername"
+                type="text"
+                placeholder="Enter your username"
+                required
+            >
+
+
+            <label for="registerEmail">
+                Email
+            </label>
+
+            <input
+                id="registerEmail"
+                type="email"
+                placeholder="Enter your email"
+                required
+            >
+
+
+            <label for="registerPassword">
+                Password
+            </label>
+
+            <div class="password-field">
+
+                <input
+                    id="registerPassword"
+                    type="password"
+                    placeholder="Create a password"
+                    required
+                >
+
+                <button
                     type="button"
-                    data-delete="${a.id}"
-                  >
-                    Delete
-                  </button>
+                    class="eye-btn"
+                    id="toggleRegisterPassword"
+                    aria-label="Show password">
+
+                    <img
+                        src=""
+                        alt="Show password"
+                        id="registerEyeIcon">
+
+                </button>
+
+            </div>
+
+
+            <label for="registerConfirmPassword">
+                Re-enter Password
+            </label>
+
+            <div class="password-field">
+
+                <input
+                    id="registerConfirmPassword"
+                    type="password"
+                    placeholder="Re-enter your password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    class="eye-btn"
+                    id="toggleConfirmPassword"
+                    aria-label="Show password">
+
+                    <img
+                        src=""
+                        alt="Show password"
+                        id="confirmEyeIcon">
+
+                </button>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-red">
+
+                Create Account
+
+            </button>
+
+        </form>
+
+
+        <button
+            id="backToLoginBtn"
+            class="btn btn-outline">
+
+            Back to Login
+
+        </button>
+
+
+        <p
+            id="registerMessage"
+            class="message">
+        </p>
+
+    </section>
+
+
+
+    <!-- STUDENT CONTENT -->
+
+    <section
+        id="studentContent"
+        class="hidden">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>
+                    Announcements
+                </h2>
+
+                <p>
+                    Stay updated with class activities and requirements.
+                </p>
+
+            </div>
+
+            <button
+                id="refreshBtn"
+                class="btn btn-outline">
+
+                Refresh
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="subjectFilters"
+            class="filters">
+        </div>
+
+
+        <div
+            id="announcementGrid"
+            class="announcement-grid">
+        </div>
+
+
+        <section class="midterm-card">
+
+            <span class="eyebrow">
+                CLASS-WIDE
+            </span>
+
+            <h2>
+                F2F MIDTERM SCHEDULE
+            </h2>
+
+            <div class="big-date">
+                September 21–26
+            </div>
+
+            <p>
+                Don't forget to review!
+            </p>
+
+            <hr>
+
+            <h3>
+                Online Midterm/s
+            </h3>
+
+            <p>
+                <strong>PLF</strong> — Chapters 1–3
+            </p>
+
+            <p>
+                <strong>SEPT. 22–26</strong>
+            </p>
+
+        </section>
+
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Class Officers
+                    </h2>
+
+                    <p>
+                        BSIT NA 1A
+                    </p>
+
                 </div>
-              `
-            )
-            .join("")
-        : `<p>No announcements yet.</p>`;
 
-    document
-      .querySelectorAll("[data-edit]")
-      .forEach(button => {
-        button.addEventListener(
-          "click",
-          () =>
-            editAnnouncement(
-              button.dataset.edit
-            )
-        );
-      });
-
-    document
-      .querySelectorAll("[data-delete]")
-      .forEach(button => {
-        button.addEventListener(
-          "click",
-          () =>
-            deleteAnnouncement(
-              button.dataset.delete
-            )
-        );
-      });
-
-  } catch (err) {
-    console.error(
-      "Admin list error:",
-      err
-    );
-
-    $("adminList").innerHTML = `
-      <p>Unable to load announcements.</p>
-    `;
-  }
-}
+            </div>
 
 
-/* ==========================================
-   EDIT
-========================================== */
+            <div
+                id="officerGrid"
+                class="officer-grid">
+            </div>
 
-async function editAnnouncement(id) {
-  try {
-    const snap =
-      await getDoc(
-        doc(db, "announcements", id)
-      );
+        </section>
 
-    if (!snap.exists()) {
-      return;
-    }
-
-    const a = snap.data();
-
-    $("announcementId").value = id;
-
-    $("subjectInput").value =
-      a.subject || "CC";
-
-    $("titleInput").value =
-      a.title || "";
-
-    $("detailsInput").value =
-      a.details || "";
-
-    $("dateInput").value =
-      a.dueDate || "";
-
-    $("formTitle").textContent =
-      "Edit Announcement";
-
-    $("cancelEditBtn")
-      .classList
-      .remove("hidden");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-  } catch (err) {
-    console.error(err);
-
-    msg(
-      "adminMessage",
-      friendlyError(err),
-      true
-    );
-  }
-}
+    </section>
 
 
-/* ==========================================
-   DELETE
-========================================== */
 
-async function deleteAnnouncement(id) {
-  if (
-    !confirm(
-      "Delete this announcement?"
-    )
-  ) {
-    return;
-  }
+    <!-- ADMIN CONTENT -->
 
-  try {
-    await deleteDoc(
-      doc(db, "announcements", id)
-    );
+    <section
+        id="adminContent"
+        class="hidden">
 
-    msg(
-      "adminMessage",
-      "Announcement deleted."
-    );
+        <div class="admin-banner">
 
-    await loadAdminList();
+            <div>
 
-  } catch (err) {
-    console.error(err);
+                <span class="eyebrow">
+                    ADMIN
+                </span>
 
-    msg(
-      "adminMessage",
-      friendlyError(err),
-      true
-    );
-  }
-}
+                <h2>
+                    Admin Settings
+                </h2>
 
+                <p>
+                    Manage class announcements.
+                </p>
 
-/* ==========================================
-   CANCEL EDIT
-========================================== */
+            </div>
 
-$("cancelEditBtn").addEventListener(
-  "click",
-  resetAnnouncementForm
-);
+            <button
+                id="seedBtn"
+                class="btn btn-red">
 
-function resetAnnouncementForm() {
-  $("announcementForm").reset();
+                Load Current Announcements
 
-  $("announcementId").value = "";
+            </button>
 
-  $("formTitle").textContent =
-    "Add Announcement";
-
-  $("cancelEditBtn")
-    .classList
-    .add("hidden");
-}
+        </div>
 
 
-/* ==========================================
-   LOAD CURRENT ANNOUNCEMENTS
-========================================== */
+        <div class="admin-layout">
 
-async function seedCurrentAnnouncements() {
-  const sample = [
-    {
-      subject: "CC",
-      title: "CC Announcement",
-      details:
-        "Please check your class instructions and prepare for the next activity.",
-      dueDate: "2026-09-18"
-    },
+            <section class="admin-card">
 
-    {
-      subject: "PLF",
-      title: "PLF Midterm Review",
-      details:
-        "Review Chapters 1–3 for the online midterm.",
-      dueDate: "2026-09-22"
-    },
-
-    {
-      subject: "STS",
-      title: "STS Reminder",
-      details:
-        "Check the latest class instructions and submission requirements.",
-      dueDate: "2026-09-20"
-    }
-  ];
-
-  try {
-    showLoading(
-      "Loading announcements..."
-    );
-
-    for (const a of sample) {
-      await addDoc(
-        collection(db, "announcements"),
-        {
-          ...a,
-          createdAt:
-            serverTimestamp(),
-          updatedAt:
-            serverTimestamp()
-        }
-      );
-    }
-
-    await loadAdminList();
-
-    hideLoading();
-
-    msg(
-      "adminMessage",
-      "Current announcements loaded."
-    );
-
-  } catch (err) {
-    hideLoading();
-
-    console.error(err);
-
-    msg(
-      "adminMessage",
-      friendlyError(err),
-      true
-    );
-  }
-}
+                <h2 id="formTitle">
+                    Add Announcement
+                </h2>
 
 
-/* ==========================================
-   INITIALIZE
-========================================== */
+                <form id="announcementForm">
 
-populateSubjectSelect();
-```
+                    <input
+                        type="hidden"
+                        id="announcementId"
+                    >
+
+
+                    <label for="subjectInput">
+                        Subject
+                    </label>
+
+                    <select
+                        id="subjectInput"
+                        required>
+                    </select>
+
+
+                    <label for="titleInput">
+                        Title
+                    </label>
+
+                    <input
+                        id="titleInput"
+                        type="text"
+                        placeholder="Announcement title"
+                        required
+                    >
+
+
+                    <label for="detailsInput">
+                        Details
+                    </label>
+
+                    <textarea
+                        id="detailsInput"
+                        rows="6"
+                        placeholder="Announcement details"
+                        required>
+                    </textarea>
+
+
+                    <label for="dateInput">
+                        Date / Due Date
+                    </label>
+
+                    <input
+                        id="dateInput"
+                        type="date"
+                    >
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-red">
+
+                            Save Announcement
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="cancelEditBtn"
+                            class="btn btn-outline hidden">
+
+                            Cancel Edit
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+                <p
+                    id="adminMessage"
+                    class="message">
+                </p>
+
+            </section>
+
+
+            <section class="admin-card">
+
+                <h2>
+                    Manage Announcements
+                </h2>
+
+                <div id="adminList">
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+    BSIT NA 1A • Class Announcements
+</footer>
+
+
+<script
+    type="module"
+    src="./script.js">
+</script>
+
+</body>
+                  </html>
