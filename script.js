@@ -106,15 +106,18 @@ function esc(value = "") {
   }[c]));
 }
 
+
 function msg(id, text, error = false) {
   const element = $(id);
 
   if (!element) return;
 
   element.textContent = text;
+
   element.style.color =
-    error ? "#0c0c61" : "#666";
+    error ? "#7b1018" : "#666666";
 }
+
 
 function showLoading(text) {
   const badge = $("accountBadge");
@@ -123,6 +126,7 @@ function showLoading(text) {
     badge.textContent = text;
   }
 }
+
 
 function hideLoading() {
   const badge = $("accountBadge");
@@ -262,6 +266,7 @@ function setupPasswordToggle(
     }
   );
 }
+
 
 setupPasswordToggle(
   "toggleLoginPassword",
@@ -671,11 +676,12 @@ onAuthStateChanged(
           doc(db, "admins", user.uid)
         );
 
-      if (
+      const isAdmin =
         user.uid === ADMIN_UID &&
         adminSnap.exists() &&
-        adminSnap.data().role === "admin"
-      ) {
+        adminSnap.data().role === "admin";
+
+      if (isAdmin) {
 
         setScreen("admin");
 
@@ -697,9 +703,13 @@ onAuthStateChanged(
         err
       );
 
-      setScreen("student");
+      msg(
+        "loginMessage",
+        "Unable to verify your account. Please try again.",
+        true
+      );
 
-      await loadAnnouncements();
+      await signOut(auth);
     }
   }
 );
@@ -716,6 +726,7 @@ function renderFilters() {
       .map(
         s => `
           <button
+            type="button"
             class="filter-btn ${
               currentFilter === s
                 ? "active"
@@ -1037,13 +1048,13 @@ async function loadAdminList() {
 
                   <button
                     type="button"
-                    data-edit="${a.id}">
+                    data-edit="${esc(a.id)}">
                     Edit
                   </button>
 
                   <button
                     type="button"
-                    data-delete="${a.id}">
+                    data-delete="${esc(a.id)}">
                     Delete
                   </button>
 
@@ -1199,6 +1210,7 @@ $("cancelEditBtn").addEventListener(
   "click",
   resetAnnouncementForm
 );
+
 
 function resetAnnouncementForm() {
 
