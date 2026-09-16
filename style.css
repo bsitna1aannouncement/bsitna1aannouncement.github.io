@@ -1,3 +1,4 @@
+css
 * {
   box-sizing: border-box;
 }
@@ -5,7 +6,6 @@
 :root {
   --red: #7b1018;
   --red-dark: #52090f;
-  --gold: #8f6a13;
   --black: #111111;
   --white: #ffffff;
   --cream: #f7f5ef;
@@ -81,8 +81,9 @@ button {
 
 .login-card,
 .admin-card,
-.midterm-card {
-  background: white;
+.midterm-card,
+.officers-board {
+  background: var(--white);
   border: 1px solid var(--line);
   border-radius: 18px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
@@ -187,7 +188,7 @@ textarea {
 }
 
 .btn-outline {
-  background: white;
+  background: var(--white);
   border: 1px solid #aaa;
   color: var(--black);
 }
@@ -259,7 +260,7 @@ textarea {
 .filter-btn {
   padding: 11px 8px;
   border: 1px solid var(--line);
-  background: white;
+  background: var(--white);
   border-radius: 10px;
   font-weight: 700;
 }
@@ -281,7 +282,7 @@ textarea {
 }
 
 .announcement-card {
-  background: white;
+  background: var(--white);
   border: 1px solid var(--line);
   border-top: 5px solid var(--red);
   border-radius: 14px;
@@ -289,10 +290,11 @@ textarea {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
+.announcement-subject,
 .subject-tag,
 .eyebrow {
   display: inline-block;
-  color: var(--gold);
+  color: var(--black);
   font-size: 0.75rem;
   font-weight: 900;
   letter-spacing: 1px;
@@ -313,7 +315,7 @@ textarea {
   grid-column: 1 / -1;
   padding: 35px;
   text-align: center;
-  background: white;
+  background: var(--white);
   border: 1px dashed #bbb;
   border-radius: 14px;
   color: var(--muted);
@@ -325,7 +327,7 @@ textarea {
 .midterm-card {
   margin: 28px 0 45px;
   padding: 28px;
-  border-left: 7px solid var(--gold);
+  border-left: 7px solid var(--black);
 }
 
 .midterm-card .big-date {
@@ -343,6 +345,16 @@ textarea {
 
 /* OFFICERS */
 
+.officers-board {
+  margin-top: 28px;
+  padding: 24px;
+  border: 2px solid var(--black);
+}
+
+.officers-board .section-heading {
+  margin-bottom: 20px;
+}
+
 .officer-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -350,16 +362,16 @@ textarea {
 }
 
 .officer-card {
-  background: #7c5c10;
+  background: var(--red);
   color: white;
   padding: 22px;
   border-radius: 16px;
-  border: 2px solid #a98a37;
+  border: 2px solid var(--black);
   box-shadow: 0 7px 18px rgba(0, 0, 0, 0.1);
 }
 
 .officer-role {
-  color: #f5e5a9;
+  color: #d9d9d9;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 1px;
@@ -367,8 +379,10 @@ textarea {
 }
 
 .officer-card h3 {
+  color: var(--white);
   margin: 7px 0 0;
 }
+
 
 
 /* ADMIN */
@@ -419,7 +433,7 @@ textarea {
 }
 
 .admin-item small {
-  color: var(--gold);
+  color: var(--black);
   font-weight: 800;
 }
 
@@ -433,7 +447,7 @@ textarea {
   padding: 7px 10px;
   border-radius: 7px;
   border: 1px solid #bbb;
-  background: white;
+  background: var(--white);
   font-weight: 700;
 }
 
@@ -464,8 +478,8 @@ footer {
 
 .loader-3d {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 46px;
+  height: 46px;
   margin: 0 auto;
   transform-style: preserve-3d;
   animation: loaderSpin 2s linear infinite;
@@ -473,12 +487,12 @@ footer {
 
 .loader-ring {
   position: absolute;
-  width: 42px;
-  height: 42px;
-  left: 8px;
-  top: 8px;
+  width: 32px;
+  height: 32px;
+  left: 7px;
+  top: 7px;
   border-radius: 50%;
-  border-width: 5px;
+  border-width: 4px;
   border-style: solid;
   transform-style: preserve-3d;
 }
@@ -496,7 +510,7 @@ footer {
 }
 
 .ring-yellow {
-  border-color: #8f6a13 transparent #8f6a13 transparent;
+  border-color: #ffffff transparent #ffffff transparent;
   transform: rotateX(65deg) rotateY(65deg);
   animation: ringYellow 1.4s linear infinite;
 }
@@ -651,4 +665,4 @@ footer {
     width: 100%;
   }
 
-    }
+  }
