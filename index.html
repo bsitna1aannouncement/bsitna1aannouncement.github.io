@@ -15,19 +15,22 @@
 
     <div>
         <h1>BSIT NA 1A</h1>
-        <p>IMPORTANT ANNOUNCEMENTS.</p>
+        <p>IMPORTANT ANNOUNCEMENTS</p>
     </div>
 
     <div class="account-area">
+
         <span id="accountBadge" class="account-badge">
             Not signed in
         </span>
 
         <button
             id="logoutBtn"
-            class="btn btn-dark hidden">
+            class="btn btn-dark hidden"
+            type="button">
             Logout
         </button>
+
     </div>
 
 </header>
@@ -35,17 +38,25 @@
 
 <main class="container">
 
-    <!-- LOGIN -->
+    <!-- ==============================
+         LOGIN SECTION
+    =============================== -->
 
     <section id="loginSection" class="login-card">
 
         <div class="login-tabs">
 
-            <button id="studentTab" class="tab active">
+            <button
+                id="studentTab"
+                class="tab active"
+                type="button">
                 Student
             </button>
 
-            <button id="adminTab" class="tab">
+            <button
+                id="adminTab"
+                class="tab"
+                type="button">
                 Admin
             </button>
 
@@ -73,6 +84,7 @@
                 id="email"
                 type="email"
                 placeholder="Enter your email"
+                autocomplete="email"
                 required
             >
 
@@ -87,6 +99,7 @@
                     id="password"
                     type="password"
                     placeholder="Enter your password"
+                    autocomplete="current-password"
                     required
                 >
 
@@ -109,9 +122,7 @@
             <button
                 type="submit"
                 class="btn btn-red">
-
                 Sign In
-
             </button>
 
         </form>
@@ -119,7 +130,9 @@
 
         <!-- ADMIN LOGIN -->
 
-        <form id="adminLoginForm" class="hidden">
+        <form
+            id="adminLoginForm"
+            class="hidden">
 
             <label for="adminEmail">
                 Email
@@ -129,6 +142,7 @@
                 id="adminEmail"
                 type="email"
                 placeholder="Enter your email"
+                autocomplete="email"
                 required
             >
 
@@ -143,6 +157,7 @@
                     id="adminPassword"
                     type="password"
                     placeholder="Enter your password"
+                    autocomplete="current-password"
                     required
                 >
 
@@ -165,15 +180,13 @@
             <button
                 type="submit"
                 class="btn btn-red">
-
                 Sign In
-
             </button>
 
         </form>
 
 
-        <!-- CREATE ACCOUNT -->
+        <!-- CREATE STUDENT ACCOUNT -->
 
         <div id="studentRegisterBox">
 
@@ -183,10 +196,9 @@
 
             <button
                 id="registerBtn"
-                class="btn btn-outline">
-
+                class="btn btn-outline"
+                type="button">
                 Create Student Account
-
             </button>
 
         </div>
@@ -201,7 +213,9 @@
 
 
 
-    <!-- REGISTER SECTION -->
+    <!-- ==============================
+         REGISTER SECTION
+    =============================== -->
 
     <section
         id="registerSection"
@@ -226,6 +240,7 @@
                 id="registerUsername"
                 type="text"
                 placeholder="Enter your username"
+                autocomplete="username"
                 required
             >
 
@@ -238,6 +253,7 @@
                 id="registerEmail"
                 type="email"
                 placeholder="Enter your email"
+                autocomplete="email"
                 required
             >
 
@@ -252,6 +268,7 @@
                     id="registerPassword"
                     type="password"
                     placeholder="Create a password"
+                    autocomplete="new-password"
                     required
                 >
 
@@ -281,6 +298,7 @@
                     id="registerConfirmPassword"
                     type="password"
                     placeholder="Re-enter your password"
+                    autocomplete="new-password"
                     required
                 >
 
@@ -303,9 +321,7 @@
             <button
                 type="submit"
                 class="btn btn-red">
-
                 Create Account
-
             </button>
 
         </form>
@@ -313,10 +329,9 @@
 
         <button
             id="backToLoginBtn"
-            class="btn btn-outline">
-
+            class="btn btn-outline"
+            type="button">
             Back to Login
-
         </button>
 
 
@@ -329,11 +344,16 @@
 
 
 
-    <!-- STUDENT CONTENT -->
+    <!-- ==============================
+         STUDENT CONTENT
+    =============================== -->
 
     <section
         id="studentContent"
         class="hidden">
+
+
+        <!-- ANNOUNCEMENTS HEADER -->
 
         <div class="section-heading">
 
@@ -351,14 +371,15 @@
 
             <button
                 id="refreshBtn"
-                class="btn btn-outline">
-
+                class="btn btn-outline"
+                type="button">
                 Refresh
-
             </button>
 
         </div>
 
+
+        <!-- COURSE FILTERS -->
 
         <div
             id="subjectFilters"
@@ -366,11 +387,17 @@
         </div>
 
 
+        <!-- ANNOUNCEMENT CARDS -->
+
         <div
             id="announcementGrid"
             class="announcement-grid">
         </div>
 
+
+        <!-- ==============================
+             MIDTERM INFORMATION
+        =============================== -->
 
         <section class="midterm-card">
 
@@ -407,6 +434,10 @@
         </section>
 
 
+        <!-- ==============================
+             CLASS OFFICERS
+        =============================== -->
+
         <section>
 
             <div class="section-heading">
@@ -437,11 +468,16 @@
 
 
 
-    <!-- ADMIN CONTENT -->
+    <!-- ==============================
+         ADMIN CONTENT
+    =============================== -->
 
     <section
         id="adminContent"
         class="hidden">
+
+
+        <!-- ADMIN HEADER -->
 
         <div class="admin-banner">
 
@@ -463,16 +499,18 @@
 
             <button
                 id="seedBtn"
-                class="btn btn-red">
-
+                class="btn btn-red"
+                type="button">
                 Load Current Announcements
-
             </button>
 
         </div>
 
 
         <div class="admin-layout">
+
+
+            <!-- ADD / EDIT ANNOUNCEMENT -->
 
             <section class="admin-card">
 
@@ -489,8 +527,10 @@
                     >
 
 
+                    <!-- COURSE -->
+
                     <label for="subjectInput">
-                        Subject
+                        Course
                     </label>
 
                     <select
@@ -498,6 +538,8 @@
                         required>
                     </select>
 
+
+                    <!-- TITLE -->
 
                     <label for="titleInput">
                         Title
@@ -511,6 +553,8 @@
                     >
 
 
+                    <!-- DETAILS -->
+
                     <label for="detailsInput">
                         Details
                     </label>
@@ -523,6 +567,8 @@
                     </textarea>
 
 
+                    <!-- DATE -->
+
                     <label for="dateInput">
                         Date / Due Date
                     </label>
@@ -533,24 +579,21 @@
                     >
 
 
+                    <!-- FORM BUTTONS -->
+
                     <div class="form-actions">
 
                         <button
                             type="submit"
                             class="btn btn-red">
-
                             Save Announcement
-
                         </button>
-
 
                         <button
                             type="button"
                             id="cancelEditBtn"
                             class="btn btn-outline hidden">
-
                             Cancel Edit
-
                         </button>
 
                     </div>
@@ -565,6 +608,9 @@
 
             </section>
 
+
+
+            <!-- MANAGE ANNOUNCEMENTS -->
 
             <section class="admin-card">
 
@@ -584,10 +630,20 @@
 </main>
 
 
+
+<!-- ==============================
+     FOOTER
+=============================== -->
+
 <footer>
     BSIT NA 1A • Class Announcements
 </footer>
 
+
+
+<!-- ==============================
+     JAVASCRIPT
+=============================== -->
 
 <script
     type="module"
