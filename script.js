@@ -1,1313 +1,1840 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  getDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp
+    getFirestore,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 
-/* ==========================================
-   FIREBASE
-========================================== */
+// =====================================================
+// FIREBASE CONFIG
+// =====================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAc8_gEr9O26MTmECEEqhUPSdqpbpOHBxo",
-  authDomain: "bsit-na-1a-j.firebaseapp.com",
-  projectId: "bsit-na-1a-j",
-  storageBucket: "bsit-na-1a-j.firebasestorage.app",
-  messagingSenderId: "154328167720",
-  appId: "1:154328167720:web:a7ecc2af99128f09ae4c1d"
+    apiKey: "AIzaSyAc8_gEr9O26MTmECEEqhUPSdqpbpOHBxo",
+    authDomain: "bsit-na-1a-j.firebaseapp.com",
+    projectId: "bsit-na-1a-j",
+    storageBucket: "bsit-na-1a-j.firebasestorage.app",
+    messagingSenderId: "154328167720",
+    appId: "1:154328167720:web:a7ecc2af99128f09ae4c1d"
 };
 
+
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
+
 const db = getFirestore(app);
 
 
-/* ==========================================
-   VARIABLES
-========================================== */
-
-const $ = id => document.getElementById(id);
+// =====================================================
+// ADMIN
+// =====================================================
 
 const ADMIN_UID = "ivsmIAHXaES7VA6n3UHTaYUTRMs2";
 
+
+// =====================================================
+// SUBJECTS
+// =====================================================
+
 const subjects = [
-  "All",
-  "CC2(M)",
-  "CC2(WF)",
-  "CC1",
-  "PATH FIT 1",
-  "NSTP 1",
-  "STS 1",
-  "PLF",
-  "ENG",
-  "HUM 1"
+    "All",
+    "CC2(M)",
+    "CC2(WF)",
+    "CC1",
+    "PATH FIT 1",
+    "NSTP 1",
+    "STS 1",
+    "PLF",
+    "ENG",
+    "HUM 1"
 ];
+
+
+// =====================================================
+// CLASS OFFICERS
+// =====================================================
 
 const officers = [
-  {
-    role: "Mayor",
-    name: "Xantheigh Robles"
-  },
-  {
-    role: "Vice Mayor",
-    name: "Airiz Shanaya"
-  },
-  {
-    role: "Secretary",
-    name: "Kurt Orito"
-  },
-  {
-    role: "Treasurer",
-    name: "Jack Daniel Pasion"
-  },
-  {
-    role: "Auditor",
-    name: "Honey Antiquina"
-  },
-  {
-    role: "Public Information Officer (PIO)",
-    name: "Joyce Cortez"
-  }
+    {
+        role: "Mayor",
+        name: "Xantheigh Robles"
+    },
+    {
+        role: "Vice Mayor",
+        name: "Airiz Shanaya"
+    },
+    {
+        role: "Secretary",
+        name: "Kurt Orito"
+    },
+    {
+        role: "Treasurer",
+        name: "Jack Daniel Pasion"
+    },
+    {
+        role: "Auditor",
+        name: "Honey Antiquina"
+    },
+    {
+        role: "PIO",
+        name: "Joyce Cortez"
+    }
 ];
 
-let currentFilter = "All";
-let announcements = [];
+
+// =====================================================
+// DOM ELEMENTS
+// =====================================================
+
+const loginSection = document.getElementById("loginSection");
+const registerSection = document.getElementById("registerSection");
+const studentContent = document.getElementById("studentContent");
+const adminContent = document.getElementById("adminContent");
+
+const studentTab = document.getElementById("studentTab");
+const adminTab = document.getElementById("adminTab");
+
+const loginTitle = document.getElementById("loginTitle");
+const loginHint = document.getElementById("loginHint");
+
+const studentLoginForm = document.getElementById("studentLoginForm");
+const adminLoginForm = document.getElementById("adminLoginForm");
+
+const studentRegisterBox = document.getElementById("studentRegisterBox");
+
+const registerBtn = document.getElementById("registerBtn");
+const backToLoginBtn = document.getElementById("backToLoginBtn");
+
+const registerForm = document.getElementById("registerForm");
+
+const logoutBtn = document.getElementById("logoutBtn");
+const accountBadge = document.getElementById("accountBadge");
+
+const loginMessage = document.getElementById("loginMessage");
+const registerMessage = document.getElementById("registerMessage");
+
+const refreshBtn = document.getElementById("refreshBtn");
+
+const subjectFilters = document.getElementById("subjectFilters");
+const announcementGrid = document.getElementById("announcementGrid");
+
+const officerGrid = document.getElementById("officerGrid");
+
+const announcementForm = document.getElementById("announcementForm");
+
+const announcementId = document.getElementById("announcementId");
+
+const subjectInput = document.getElementById("subjectInput");
+const titleInput = document.getElementById("titleInput");
+const detailsInput = document.getElementById("detailsInput");
+const dateInput = document.getElementById("dateInput");
+
+const formTitle = document.getElementById("formTitle");
+
+const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+const adminList = document.getElementById("adminList");
+const adminMessage = document.getElementById("adminMessage");
+
+const seedBtn = document.getElementById("seedBtn");
 
 
-/* ==========================================
-   HELPERS
-========================================== */
+// =====================================================
+// IMPORTANT EVENT DOM
+// =====================================================
 
-function esc(value = "") {
-  return String(value).replace(/[&<>'"]/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-    '"': "&quot;"
-  }[c]));
+const importantEvent =
+    document.getElementById("importantEvent");
+
+const eventLabel =
+    document.getElementById("eventLabel");
+
+const eventTitle =
+    document.getElementById("eventTitle");
+
+const eventDate =
+    document.getElementById("eventDate");
+
+const eventDetails =
+    document.getElementById("eventDetails");
+
+const eventForm =
+    document.getElementById("eventForm");
+
+const eventLabelInput =
+    document.getElementById("eventLabelInput");
+
+const eventTitleInput =
+    document.getElementById("eventTitleInput");
+
+const eventDateInput =
+    document.getElementById("eventDateInput");
+
+const eventDetailsInput =
+    document.getElementById("eventDetailsInput");
+
+const removeEventBtn =
+    document.getElementById("removeEventBtn");
+
+const eventMessage =
+    document.getElementById("eventMessage");
+
+
+// =====================================================
+// HELPER
+// =====================================================
+
+function msg(element, text, error = false) {
+
+    if (!element) return;
+
+    element.textContent = text;
+
+    element.style.color =
+        error ? "#7b1018" : "#666666";
 }
 
 
-function msg(id, text, error = false) {
-  const element = $(id);
+// =====================================================
+// SCREEN CONTROL
+// =====================================================
 
-  if (!element) return;
+function setScreen(screen) {
 
-  element.textContent = text;
+    loginSection.classList.add("hidden");
+    registerSection.classList.add("hidden");
+    studentContent.classList.add("hidden");
+    adminContent.classList.add("hidden");
 
-  element.style.color =
-    error ? "#7b1018" : "#666666";
+    logoutBtn.classList.add("hidden");
+
+    if (screen === "login") {
+
+        loginSection.classList.remove("hidden");
+
+        accountBadge.textContent = "Not signed in";
+
+    }
+
+    if (screen === "register") {
+
+        registerSection.classList.remove("hidden");
+
+        accountBadge.textContent = "Not signed in";
+
+    }
+
+    if (screen === "student") {
+
+        studentContent.classList.remove("hidden");
+
+        logoutBtn.classList.remove("hidden");
+
+    }
+
+    if (screen === "admin") {
+
+        adminContent.classList.remove("hidden");
+
+        logoutBtn.classList.remove("hidden");
+
+    }
 }
 
 
-function showLoading(text) {
-  const badge = $("accountBadge");
+// =====================================================
+// LOGIN TABS
+// =====================================================
 
-  if (badge) {
-    badge.textContent = text;
-  }
-}
+studentTab.addEventListener("click", () => {
 
+    studentTab.classList.add("active");
+    adminTab.classList.remove("active");
 
-function hideLoading() {
-  const badge = $("accountBadge");
+    loginTitle.textContent = "Student Login";
 
-  if (!badge) return;
+    loginHint.textContent =
+        "Sign in to view class announcements.";
 
-  if (!auth.currentUser) {
-    badge.textContent = "Not signed in";
-  } else {
-    badge.textContent =
-      auth.currentUser.email || "Signed in";
-  }
-}
+    studentLoginForm.classList.remove("hidden");
+    adminLoginForm.classList.add("hidden");
 
+    studentRegisterBox.classList.remove("hidden");
 
-/* ==========================================
-   SCREEN CONTROL
-========================================== */
+    msg(loginMessage, "");
 
-function setScreen(mode) {
-
-  $("loginSection").classList.toggle(
-    "hidden",
-    mode !== "login"
-  );
-
-  $("registerSection").classList.toggle(
-    "hidden",
-    mode !== "register"
-  );
-
-  $("studentContent").classList.toggle(
-    "hidden",
-    mode !== "student"
-  );
-
-  $("adminContent").classList.toggle(
-    "hidden",
-    mode !== "admin"
-  );
-
-  $("logoutBtn").classList.toggle(
-    "hidden",
-    !["student", "admin"].includes(mode)
-  );
-}
+});
 
 
-/* ==========================================
-   PASSWORD EYES
-========================================== */
+adminTab.addEventListener("click", () => {
 
-const eyeClosed = `
-<svg xmlns="http://www.w3.org/2000/svg"
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2">
-<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
-<circle cx="12" cy="12" r="3"/>
-</svg>
-`;
+    adminTab.classList.add("active");
+    studentTab.classList.remove("active");
 
-const eyeOpen = `
-<svg xmlns="http://www.w3.org/2000/svg"
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2">
-<path d="M3 3l18 18"/>
-<path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
-<path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a17.4 17.4 0 0 1-3.2 4.2"/>
-<path d="M6.2 6.2C3.5 8.2 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1"/>
-</svg>
-`;
+    loginTitle.textContent = "Admin Login";
 
-const eyeClosedIcon =
-  "data:image/svg+xml;charset=UTF-8," +
-  encodeURIComponent(eyeClosed);
+    loginHint.textContent =
+        "Sign in using the administrator account.";
 
-const eyeOpenIcon =
-  "data:image/svg+xml;charset=UTF-8," +
-  encodeURIComponent(eyeOpen);
+    adminLoginForm.classList.remove("hidden");
+    studentLoginForm.classList.add("hidden");
+
+    studentRegisterBox.classList.add("hidden");
+
+    msg(loginMessage, "");
+
+});
+
+
+// =====================================================
+// PASSWORD EYE
+// =====================================================
+
+const eyeOpen =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E";
+
+const eyeClosed =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3l18 18'/%3E%3Cpath d='M10.6 10.6a2 2 0 0 0 2.8 2.8'/%3E%3Cpath d='M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a17.8 17.8 0 0 1-3.1 4.2'/%3E%3Cpath d='M6.6 6.6C3.6 8.6 2 12 2 12s3.5 8 10 8a10.8 10.8 0 0 0 3-.4'/%3E%3C/svg%3E";
 
 
 function setupPasswordToggle(
-  buttonId,
-  inputId,
-  iconId
+    inputId,
+    buttonId,
+    iconId
 ) {
 
-  const button = $(buttonId);
-  const input = $(inputId);
-  const icon = $(iconId);
+    const input =
+        document.getElementById(inputId);
 
-  if (!button || !input || !icon) return;
+    const button =
+        document.getElementById(buttonId);
 
-  icon.src = eyeClosedIcon;
-  icon.alt = "Show password";
+    const icon =
+        document.getElementById(iconId);
 
-  button.setAttribute(
-    "aria-label",
-    "Show password"
-  );
+    if (!input || !button || !icon) return;
 
-  button.addEventListener(
-    "click",
-    () => {
+    icon.src = eyeOpen;
 
-      const isPassword =
-        input.type === "password";
+    button.addEventListener("click", () => {
 
-      if (isPassword) {
+        if (input.type === "password") {
 
-        input.type = "text";
+            input.type = "text";
 
-        icon.src = eyeOpenIcon;
-        icon.alt = "Hide password";
+            icon.src = eyeClosed;
 
-        button.setAttribute(
-          "aria-label",
-          "Hide password"
-        );
+            button.setAttribute(
+                "aria-label",
+                "Hide password"
+            );
 
-      } else {
+        } else {
 
-        input.type = "password";
+            input.type = "password";
 
-        icon.src = eyeClosedIcon;
-        icon.alt = "Show password";
+            icon.src = eyeOpen;
 
-        button.setAttribute(
-          "aria-label",
-          "Show password"
-        );
-      }
-    }
-  );
-}
+            button.setAttribute(
+                "aria-label",
+                "Show password"
+            );
 
-
-setupPasswordToggle(
-  "toggleLoginPassword",
-  "password",
-  "loginEyeIcon"
-);
-
-setupPasswordToggle(
-  "toggleAdminPassword",
-  "adminPassword",
-  "adminEyeIcon"
-);
-
-setupPasswordToggle(
-  "toggleRegisterPassword",
-  "registerPassword",
-  "registerEyeIcon"
-);
-
-setupPasswordToggle(
-  "toggleConfirmPassword",
-  "registerConfirmPassword",
-  "confirmEyeIcon"
-);
-
-
-/* ==========================================
-   LOGIN TABS
-========================================== */
-
-$("studentTab").addEventListener(
-  "click",
-  () => {
-
-    $("studentTab")
-      .classList
-      .add("active");
-
-    $("adminTab")
-      .classList
-      .remove("active");
-
-    $("studentLoginForm")
-      .classList
-      .remove("hidden");
-
-    $("adminLoginForm")
-      .classList
-      .add("hidden");
-
-    $("loginTitle").textContent =
-      "Student Login";
-
-    $("loginHint").textContent =
-      "Sign in to view class announcements.";
-
-    $("studentRegisterBox")
-      .classList
-      .remove("hidden");
-
-    msg("loginMessage", "");
-  }
-);
-
-
-$("adminTab").addEventListener(
-  "click",
-  () => {
-
-    $("adminTab")
-      .classList
-      .add("active");
-
-    $("studentTab")
-      .classList
-      .remove("active");
-
-    $("adminLoginForm")
-      .classList
-      .remove("hidden");
-
-    $("studentLoginForm")
-      .classList
-      .add("hidden");
-
-    $("loginTitle").textContent =
-      "Admin Login";
-
-    $("loginHint").textContent =
-      "Sign in using your administrator account.";
-
-    $("studentRegisterBox")
-      .classList
-      .add("hidden");
-
-    msg("loginMessage", "");
-  }
-);
-
-
-/* ==========================================
-   CREATE ACCOUNT
-========================================== */
-
-$("registerBtn").addEventListener(
-  "click",
-  () => {
-
-    msg("loginMessage", "");
-
-    setScreen("register");
-  }
-);
-
-
-$("backToLoginBtn").addEventListener(
-  "click",
-  () => {
-
-    msg("registerMessage", "");
-
-    setScreen("login");
-
-    $("studentTab")
-      .classList
-      .add("active");
-
-    $("adminTab")
-      .classList
-      .remove("active");
-
-    $("studentLoginForm")
-      .classList
-      .remove("hidden");
-
-    $("adminLoginForm")
-      .classList
-      .add("hidden");
-
-    $("loginTitle").textContent =
-      "Student Login";
-
-    $("loginHint").textContent =
-      "Sign in to view class announcements.";
-
-    $("studentRegisterBox")
-      .classList
-      .remove("hidden");
-  }
-);
-
-
-/* ==========================================
-   STUDENT LOGIN
-========================================== */
-
-$("studentLoginForm").addEventListener(
-  "submit",
-  async e => {
-
-    e.preventDefault();
-
-    msg("loginMessage", "");
-
-    showLoading("Signing in...");
-
-    try {
-
-      await signInWithEmailAndPassword(
-        auth,
-        $("email").value.trim(),
-        $("password").value
-      );
-
-    } catch (err) {
-
-      hideLoading();
-
-      msg(
-        "loginMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   ADMIN LOGIN
-========================================== */
-
-$("adminLoginForm").addEventListener(
-  "submit",
-  async e => {
-
-    e.preventDefault();
-
-    msg("loginMessage", "");
-
-    showLoading("Signing in...");
-
-    try {
-
-      await signInWithEmailAndPassword(
-        auth,
-        $("adminEmail").value.trim(),
-        $("adminPassword").value
-      );
-
-    } catch (err) {
-
-      hideLoading();
-
-      msg(
-        "loginMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   REGISTER
-========================================== */
-
-$("registerForm").addEventListener(
-  "submit",
-  async e => {
-
-    e.preventDefault();
-
-    const username =
-      $("registerUsername").value.trim();
-
-    const email =
-      $("registerEmail").value.trim();
-
-    const password =
-      $("registerPassword").value;
-
-    const confirm =
-      $("registerConfirmPassword").value;
-
-    if (password !== confirm) {
-
-      msg(
-        "registerMessage",
-        "Passwords do not match.",
-        true
-      );
-
-      return;
-    }
-
-    showLoading("Creating account...");
-
-    try {
-
-      const cred =
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-      await setDoc(
-        doc(db, "users", cred.user.uid),
-        {
-          username: username,
-          email: cred.user.email,
-          role: "student",
-          createdAt: serverTimestamp()
         }
-      );
 
-      hideLoading();
-
-      msg(
-        "registerMessage",
-        "Account created successfully."
-      );
-
-    } catch (err) {
-
-      hideLoading();
-
-      msg(
-        "registerMessage",
-        friendlyError(err),
-        true
-      );
-    }
-  }
-);
-
-
-/* ==========================================
-   LOGOUT
-========================================== */
-
-$("logoutBtn").addEventListener(
-  "click",
-  async () => {
-
-    try {
-
-      await signOut(auth);
-
-    } catch (err) {
-
-      console.error(err);
-    }
-  }
-);
-
-
-/* ==========================================
-   REFRESH
-========================================== */
-
-$("refreshBtn").addEventListener(
-  "click",
-  loadAnnouncements
-);
-
-
-/* ==========================================
-   SEED
-========================================== */
-
-$("seedBtn").addEventListener(
-  "click",
-  seedCurrentAnnouncements
-);
-
-
-/* ==========================================
-   ERROR MESSAGES
-========================================== */
-
-function friendlyError(err) {
-
-  const code = err?.code || "";
-
-  const map = {
-
-    "auth/invalid-credential":
-      "Incorrect email or password.",
-
-    "auth/invalid-email":
-      "Please enter a valid email.",
-
-    "auth/email-already-in-use":
-      "That email is already registered.",
-
-    "auth/weak-password":
-      "Password should be at least 6 characters.",
-
-    "auth/network-request-failed":
-      "Network error. Please check your internet connection.",
-
-    "auth/api-key-not-valid":
-      "Firebase API key is invalid. Check the Firebase configuration.",
-
-    "permission-denied":
-      "You do not have permission to do that."
-  };
-
-  return (
-    map[code] ||
-    err?.message ||
-    "Something went wrong. Please try again."
-  );
-}
-
-
-/* ==========================================
-   AUTH STATE
-========================================== */
-
-onAuthStateChanged(
-  auth,
-  async user => {
-
-    hideLoading();
-
-    if (!user) {
-
-      $("accountBadge").textContent =
-        "Not signed in";
-
-      setScreen("login");
-
-      return;
-    }
-
-    $("accountBadge").textContent =
-      user.email || "Signed in";
-
-    try {
-
-      const adminSnap =
-        await getDoc(
-          doc(db, "admins", user.uid)
-        );
-
-      const isAdmin =
-        user.uid === ADMIN_UID &&
-        adminSnap.exists() &&
-        adminSnap.data().role === "admin";
-
-      if (isAdmin) {
-
-        setScreen("admin");
-
-        populateSubjectSelect();
-
-        await loadAdminList();
-
-      } else {
-
-        setScreen("student");
-
-        await loadAnnouncements();
-      }
-
-    } catch (err) {
-
-      console.error(
-        "Auth/Firestore error:",
-        err
-      );
-
-      msg(
-        "loginMessage",
-        "Unable to verify your account. Please try again.",
-        true
-      );
-
-      await signOut(auth);
-    }
-  }
-);
-
-
-/* ==========================================
-   FILTERS
-========================================== */
-
-function renderFilters() {
-
-  $("subjectFilters").innerHTML =
-    subjects
-      .map(
-        s => `
-          <button
-            type="button"
-            class="filter-btn ${
-              currentFilter === s
-                ? "active"
-                : ""
-            }"
-            data-subject="${esc(s)}">
-            ${esc(s)}
-          </button>
-        `
-      )
-      .join("");
-
-  document
-    .querySelectorAll(".filter-btn")
-    .forEach(btn => {
-
-      btn.addEventListener(
-        "click",
-        () => {
-
-          currentFilter =
-            btn.dataset.subject;
-
-          renderFilters();
-          renderAnnouncements();
-        }
-      );
     });
 }
 
 
-/* ==========================================
-   LOAD ANNOUNCEMENTS
-========================================== */
+setupPasswordToggle(
+    "password",
+    "toggleLoginPassword",
+    "loginEyeIcon"
+);
+
+setupPasswordToggle(
+    "adminPassword",
+    "toggleAdminPassword",
+    "adminEyeIcon"
+);
+
+setupPasswordToggle(
+    "registerPassword",
+    "toggleRegisterPassword",
+    "registerEyeIcon"
+);
+
+setupPasswordToggle(
+    "registerConfirmPassword",
+    "toggleConfirmPassword",
+    "confirmEyeIcon"
+);
+
+
+// =====================================================
+// STUDENT LOGIN
+// =====================================================
+
+studentLoginForm.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        msg(loginMessage, "Signing in...");
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            msg(loginMessage, "");
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                loginMessage,
+                "Invalid email or password.",
+                true
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// ADMIN LOGIN
+// =====================================================
+
+adminLoginForm.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        msg(loginMessage, "Signing in...");
+
+        const email =
+            document.getElementById("adminEmail").value.trim();
+
+        const password =
+            document.getElementById("adminPassword").value;
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            msg(loginMessage, "");
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                loginMessage,
+                "Invalid admin email or password.",
+                true
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// REGISTER BUTTON
+// =====================================================
+
+registerBtn.addEventListener("click", () => {
+
+    loginSection.classList.add("hidden");
+
+    registerSection.classList.remove("hidden");
+
+    msg(registerMessage, "");
+
+});
+
+
+// =====================================================
+// BACK TO LOGIN
+// =====================================================
+
+backToLoginBtn.addEventListener("click", () => {
+
+    registerSection.classList.add("hidden");
+
+    loginSection.classList.remove("hidden");
+
+    studentTab.classList.add("active");
+    adminTab.classList.remove("active");
+
+    studentLoginForm.classList.remove("hidden");
+    adminLoginForm.classList.add("hidden");
+
+    studentRegisterBox.classList.remove("hidden");
+
+    loginTitle.textContent =
+        "Student Login";
+
+    loginHint.textContent =
+        "Sign in to view class announcements.";
+
+    msg(registerMessage, "");
+
+});
+
+
+// =====================================================
+// STUDENT REGISTRATION
+// =====================================================
+
+registerForm.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+        const username =
+            document
+                .getElementById("registerUsername")
+                .value
+                .trim();
+
+        const email =
+            document
+                .getElementById("registerEmail")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("registerPassword")
+                .value;
+
+        const confirmPassword =
+            document
+                .getElementById("registerConfirmPassword")
+                .value;
+
+
+        if (password !== confirmPassword) {
+
+            msg(
+                registerMessage,
+                "Passwords do not match.",
+                true
+            );
+
+            return;
+        }
+
+
+        msg(
+            registerMessage,
+            "Creating account..."
+        );
+
+
+        try {
+
+            const credential =
+                await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            await setDoc(
+                doc(
+                    db,
+                    "users",
+                    credential.user.uid
+                ),
+                {
+                    username: username,
+                    email: email,
+                    role: "student",
+                    createdAt: serverTimestamp()
+                }
+            );
+
+
+            msg(
+                registerMessage,
+                "Account created successfully."
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                registerMessage,
+                error.message,
+                true
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+logoutBtn.addEventListener(
+    "click",
+    async () => {
+
+        await signOut(auth);
+
+        setScreen("login");
+
+        studentLoginForm.reset();
+        adminLoginForm.reset();
+
+        msg(loginMessage, "");
+
+    }
+);
+
+
+// =====================================================
+// AUTH STATE
+// =====================================================
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        if (!user) {
+
+            setScreen("login");
+
+            return;
+        }
+
+
+        accountBadge.textContent =
+            user.email || "Signed in";
+
+
+        try {
+
+            const adminSnap =
+                await getDoc(
+                    doc(
+                        db,
+                        "admins",
+                        user.uid
+                    )
+                );
+
+
+            const isAdmin =
+                user.uid === ADMIN_UID &&
+                adminSnap.exists() &&
+                adminSnap.data().role === "admin";
+
+
+            if (isAdmin) {
+
+                setScreen("admin");
+
+                populateSubjectSelect();
+
+                await loadAdminList();
+
+                await loadEventForAdmin();
+
+            } else {
+
+                setScreen("student");
+
+                await loadAnnouncements();
+
+                await loadImportantEvent();
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Authentication check error:",
+                error
+            );
+
+            await signOut(auth);
+
+            setScreen("login");
+
+            msg(
+                loginMessage,
+                "Unable to verify account.",
+                true
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// ANNOUNCEMENTS
+// =====================================================
+
+let allAnnouncements = [];
+
+let activeSubject = "All";
+
 
 async function loadAnnouncements() {
 
-  try {
-
-    const snap =
-      await getDocs(
-        collection(db, "announcements")
-      );
-
-    announcements =
-      snap.docs
-        .map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-        .sort(
-          (a, b) =>
-            String(a.dueDate || "")
-              .localeCompare(
-                String(b.dueDate || "")
-              )
-        );
-
-    renderFilters();
-    renderAnnouncements();
-
-  } catch (err) {
-
-    console.error(
-      "Unable to load announcements:",
-      err
-    );
-
-    $("announcementGrid").innerHTML = `
-      <p>Unable to load announcements.</p>
-    `;
-  }
-}
-
-
-/* ==========================================
-   DISPLAY ANNOUNCEMENTS
-========================================== */
-
-function renderAnnouncements() {
-
-  const list =
-    currentFilter === "All"
-      ? announcements
-      : announcements.filter(
-          a =>
-            a.subject === currentFilter
-        );
-
-  if (!list.length) {
-
-    $("announcementGrid").innerHTML = `
-      <p>No announcements available.</p>
+    announcementGrid.innerHTML = `
+        <div class="loading-box">
+            <div class="loader-3d">
+                <div class="loader-ring ring-red"></div>
+                <div class="loader-ring ring-black"></div>
+                <div class="loader-ring ring-yellow"></div>
+            </div>
+            <p>LOADING ANNOUNCEMENTS...</p>
+        </div>
     `;
 
-    return;
-  }
-
-  $("announcementGrid").innerHTML =
-    list
-      .map(
-        a => `
-          <article class="announcement-card">
-
-            <div class="announcement-subject">
-              ${esc(a.subject || "CLASS")}
-            </div>
-
-            <h3>
-              ${esc(a.title || "")}
-            </h3>
-
-            <p class="details">
-              ${esc(a.details || "")}
-            </p>
-
-            <strong>Due:</strong>
-            ${esc(formatDate(a.dueDate))}
-
-          </article>
-        `
-      )
-      .join("");
-}
-
-
-/* ==========================================
-   SUBJECT SELECT
-========================================== */
-
-function populateSubjectSelect() {
-
-  $("subjectInput").innerHTML =
-    subjects
-      .filter(s => s !== "All")
-      .map(
-        s =>
-          `<option value="${esc(s)}">${esc(s)}</option>`
-      )
-      .join("");
-}
-
-
-/* ==========================================
-   OFFICERS
-========================================== */
-
-function renderOfficers() {
-
-  $("officerGrid").innerHTML =
-    officers
-      .map(
-        officer => `
-          <div class="officer-card">
-
-            <div class="officer-role">
-              ${esc(officer.role)}
-            </div>
-
-            <h3>
-              ${esc(officer.name)}
-            </h3>
-
-          </div>
-        `
-      )
-      .join("");
-}
-
-
-/* ==========================================
-   DATE
-========================================== */
-
-function formatDate(date) {
-
-  if (!date) {
-    return "No date";
-  }
-
-  const d =
-    new Date(date + "T00:00:00");
-
-  return isNaN(d)
-    ? date
-    : d.toLocaleDateString(
-        "en-US",
-        {
-          month: "short",
-          day: "numeric",
-          year: "numeric"
-        }
-      );
-}
-
-
-/* ==========================================
-   ADD / EDIT ANNOUNCEMENT
-========================================== */
-
-$("announcementForm").addEventListener(
-  "submit",
-  async e => {
-
-    e.preventDefault();
-
-    const id =
-      $("announcementId").value;
-
-    const data = {
-
-      subject:
-        $("subjectInput").value,
-
-      title:
-        $("titleInput").value.trim(),
-
-      details:
-        $("detailsInput").value.trim(),
-
-      dueDate:
-        $("dateInput").value,
-
-      updatedAt:
-        serverTimestamp()
-    };
 
     try {
 
-      if (id) {
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "announcements"
+                )
+            );
 
-        await updateDoc(
-          doc(db, "announcements", id),
-          data
+
+        allAnnouncements =
+            snapshot.docs.map(
+                document => ({
+                    id: document.id,
+                    ...document.data()
+                })
+            );
+
+
+        allAnnouncements.sort(
+            (a, b) => {
+
+                const dateA =
+                    a.dueDate || "9999-12-31";
+
+                const dateB =
+                    b.dueDate || "9999-12-31";
+
+                return dateA.localeCompare(dateB);
+
+            }
         );
 
-      } else {
 
-        await addDoc(
-          collection(db, "announcements"),
-          {
-            ...data,
-            createdAt:
-              serverTimestamp()
-          }
-        );
-      }
+        renderFilters();
 
-      msg(
-        "adminMessage",
-        "Announcement saved."
-      );
+        renderAnnouncements();
 
-      resetAnnouncementForm();
+    } catch (error) {
 
-      await loadAdminList();
+        console.error(error);
 
-    } catch (err) {
+        announcementGrid.innerHTML = `
+            <div class="no-announcements">
+                Unable to load announcements.
+            </div>
+        `;
 
-      console.error(err);
-
-      msg(
-        "adminMessage",
-        friendlyError(err),
-        true
-      );
     }
-  }
+
+}
+
+
+// =====================================================
+// FILTERS
+// =====================================================
+
+function renderFilters() {
+
+    subjectFilters.innerHTML =
+        subjects
+            .map(
+                subject => `
+                    <button
+                        type="button"
+                        class="filter-btn ${
+                            activeSubject === subject
+                                ? "active"
+                                : ""
+                        }"
+                        data-subject="${subject}">
+                        ${subject}
+                    </button>
+                `
+            )
+            .join("");
+
+
+    document
+        .querySelectorAll(".filter-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    activeSubject =
+                        button.dataset.subject;
+
+                    renderFilters();
+
+                    renderAnnouncements();
+
+                }
+            );
+
+        });
+
+}
+
+
+// =====================================================
+// RENDER ANNOUNCEMENTS
+// =====================================================
+
+function renderAnnouncements() {
+
+    const filtered =
+        activeSubject === "All"
+            ? allAnnouncements
+            : allAnnouncements.filter(
+                announcement =>
+                    announcement.subject === activeSubject
+            );
+
+
+    if (filtered.length === 0) {
+
+        announcementGrid.innerHTML = `
+            <div class="no-announcements">
+                No announcements available.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    announcementGrid.innerHTML =
+        filtered
+            .map(
+                announcement => `
+
+                    <article class="announcement-card">
+
+                        <span class="announcement-subject">
+                            ${escapeHtml(
+                                announcement.subject || ""
+                            )}
+                        </span>
+
+                        <h3>
+                            ${escapeHtml(
+                                announcement.title || ""
+                            )}
+                        </h3>
+
+                        <p class="details">
+                            ${escapeHtml(
+                                announcement.details || ""
+                            )}
+                        </p>
+
+                        ${
+                            announcement.dueDate
+                                ? `
+                                    <small>
+                                        Due:
+                                        ${escapeHtml(
+                                            announcement.dueDate
+                                        )}
+                                    </small>
+                                `
+                                : ""
+                        }
+
+                    </article>
+
+                `
+            )
+            .join("");
+
+}
+
+
+// =====================================================
+// SUBJECT SELECT
+// =====================================================
+
+function populateSubjectSelect() {
+
+    subjectInput.innerHTML =
+        subjects
+            .filter(
+                subject =>
+                    subject !== "All"
+            )
+            .map(
+                subject => `
+                    <option value="${subject}">
+                        ${subject}
+                    </option>
+                `
+            )
+            .join("");
+
+}
+
+
+// =====================================================
+// OFFICERS
+// =====================================================
+
+function renderOfficers() {
+
+    officerGrid.innerHTML =
+        officers
+            .map(
+                officer => `
+
+                    <div class="officer-card">
+
+                        <div class="officer-role">
+                            ${escapeHtml(
+                                officer.role
+                            )}
+                        </div>
+
+                        <h3>
+                            ${escapeHtml(
+                                officer.name
+                            )}
+                        </h3>
+
+                    </div>
+
+                `
+            )
+            .join("");
+
+}
+
+
+// =====================================================
+// ADD / EDIT ANNOUNCEMENT
+// =====================================================
+
+announcementForm.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        const id =
+            announcementId.value;
+
+
+        const data = {
+
+            subject:
+                subjectInput.value,
+
+            title:
+                titleInput.value.trim(),
+
+            details:
+                detailsInput.value.trim(),
+
+            dueDate:
+                dateInput.value || "",
+
+            updatedAt:
+                serverTimestamp()
+
+        };
+
+
+        try {
+
+            if (id) {
+
+                await updateDoc(
+                    doc(
+                        db,
+                        "announcements",
+                        id
+                    ),
+                    data
+                );
+
+                msg(
+                    adminMessage,
+                    "Announcement updated successfully."
+                );
+
+            } else {
+
+                await addDoc(
+                    collection(
+                        db,
+                        "announcements"
+                    ),
+                    {
+                        ...data,
+                        createdAt:
+                            serverTimestamp()
+                    }
+                );
+
+                msg(
+                    adminMessage,
+                    "Announcement added successfully."
+                );
+
+            }
+
+
+            resetAnnouncementForm();
+
+            await loadAdminList();
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                adminMessage,
+                "Unable to save announcement.",
+                true
+            );
+
+        }
+
+    }
 );
 
 
-/* ==========================================
-   ADMIN LIST
-========================================== */
+// =====================================================
+// ADMIN ANNOUNCEMENT LIST
+// =====================================================
 
 async function loadAdminList() {
 
-  try {
+    adminList.innerHTML =
+        `<p class="small-text">Loading...</p>`;
 
-    const snap =
-      await getDocs(
-        collection(db, "announcements")
-      );
 
-    const list =
-      snap.docs
-        .map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-        .sort(
-          (a, b) =>
-            String(a.dueDate || "")
-              .localeCompare(
-                String(b.dueDate || "")
-              )
+    try {
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "announcements"
+                )
+            );
+
+
+        const announcements =
+            snapshot.docs.map(
+                document => ({
+                    id: document.id,
+                    ...document.data()
+                })
+            );
+
+
+        announcements.sort(
+            (a, b) =>
+                (a.dueDate || "")
+                    .localeCompare(
+                        b.dueDate || ""
+                    )
         );
 
-    $("adminList").innerHTML =
-      list.length
-        ? list
-            .map(
-              a => `
-                <div class="admin-item">
 
-                  <span>
+        if (announcements.length === 0) {
 
-                    ${esc(a.subject || "")}
+            adminList.innerHTML =
+                `<p class="small-text">
+                    No announcements yet.
+                </p>`;
 
-                    <strong>
-                      ${esc(a.title || "")}
-                    </strong>
+            return;
+        }
 
-                    ${esc(
-                      formatDate(a.dueDate)
-                    )}
 
-                  </span>
+        adminList.innerHTML =
+            announcements
+                .map(
+                    announcement => `
 
-                  <button
-                    type="button"
-                    data-edit="${esc(a.id)}">
-                    Edit
-                  </button>
+                        <div class="admin-item">
 
-                  <button
-                    type="button"
-                    data-delete="${esc(a.id)}">
-                    Delete
-                  </button>
+                            <small>
+                                ${escapeHtml(
+                                    announcement.subject || ""
+                                )}
+                            </small>
 
-                </div>
-              `
+                            <strong>
+                                ${escapeHtml(
+                                    announcement.title || ""
+                                )}
+                            </strong>
+
+                            ${
+                                announcement.dueDate
+                                    ? `
+                                        <div>
+                                            Due:
+                                            ${escapeHtml(
+                                                announcement.dueDate
+                                            )}
+                                        </div>
+                                    `
+                                    : ""
+                            }
+
+
+                            <div class="admin-item-actions">
+
+                                <button
+                                    type="button"
+                                    data-edit="${announcement.id}">
+                                    Edit
+                                </button>
+
+                                <button
+                                    type="button"
+                                    data-delete="${announcement.id}">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    `
+                )
+                .join("");
+
+
+        document
+            .querySelectorAll(
+                "[data-edit]"
             )
-            .join("")
-        : `<p>No announcements yet.</p>`;
+            .forEach(button => {
 
-    document
-      .querySelectorAll("[data-edit]")
-      .forEach(button => {
+                button.addEventListener(
+                    "click",
+                    () => {
 
-        button.addEventListener(
-          "click",
-          () =>
-            editAnnouncement(
-              button.dataset.edit
+                        editAnnouncement(
+                            button.dataset.edit
+                        );
+
+                    }
+                );
+
+            });
+
+
+        document
+            .querySelectorAll(
+                "[data-delete]"
             )
-        );
-      });
+            .forEach(button => {
 
-    document
-      .querySelectorAll("[data-delete]")
-      .forEach(button => {
+                button.addEventListener(
+                    "click",
+                    () => {
 
-        button.addEventListener(
-          "click",
-          () =>
-            deleteAnnouncement(
-              button.dataset.delete
-            )
-        );
-      });
+                        deleteAnnouncement(
+                            button.dataset.delete
+                        );
 
-  } catch (err) {
+                    }
+                );
 
-    console.error(
-      "Admin list error:",
-      err
-    );
+            });
 
-    $("adminList").innerHTML = `
-      <p>Unable to load announcements.</p>
-    `;
-  }
+    } catch (error) {
+
+        console.error(error);
+
+        adminList.innerHTML =
+            `<p class="message">
+                Unable to load announcements.
+            </p>`;
+
+    }
+
 }
 
 
-/* ==========================================
-   EDIT
-========================================== */
+// =====================================================
+// EDIT ANNOUNCEMENT
+// =====================================================
 
 async function editAnnouncement(id) {
 
-  try {
+    try {
 
-    const snap =
-      await getDoc(
-        doc(db, "announcements", id)
-      );
+        const snapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "announcements",
+                    id
+                )
+            );
 
-    if (!snap.exists()) {
-      return;
+
+        if (!snapshot.exists()) {
+
+            msg(
+                adminMessage,
+                "Announcement not found.",
+                true
+            );
+
+            return;
+        }
+
+
+        const data =
+            snapshot.data();
+
+
+        announcementId.value =
+            id;
+
+        subjectInput.value =
+            data.subject || "";
+
+        titleInput.value =
+            data.title || "";
+
+        detailsInput.value =
+            data.details || "";
+
+        dateInput.value =
+            data.dueDate || "";
+
+
+        formTitle.textContent =
+            "Edit Announcement";
+
+        cancelEditBtn.classList.remove(
+            "hidden"
+        );
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        msg(
+            adminMessage,
+            "Unable to load announcement.",
+            true
+        );
+
     }
 
-    const a = snap.data();
-
-    $("announcementId").value = id;
-
-    $("subjectInput").value =
-      a.subject || "CC2(M)";
-
-    $("titleInput").value =
-      a.title || "";
-
-    $("detailsInput").value =
-      a.details || "";
-
-    $("dateInput").value =
-      a.dueDate || "";
-
-    $("formTitle").textContent =
-      "Edit Announcement";
-
-    $("cancelEditBtn")
-      .classList
-      .remove("hidden");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-  } catch (err) {
-
-    console.error(err);
-
-    msg(
-      "adminMessage",
-      friendlyError(err),
-      true
-    );
-  }
 }
 
 
-/* ==========================================
-   DELETE
-========================================== */
+// =====================================================
+// DELETE ANNOUNCEMENT
+// =====================================================
 
 async function deleteAnnouncement(id) {
 
-  if (
-    !confirm(
-      "Delete this announcement?"
-    )
-  ) {
-    return;
-  }
+    const confirmed =
+        confirm(
+            "Delete this announcement?"
+        );
 
-  try {
 
-    await deleteDoc(
-      doc(db, "announcements", id)
-    );
+    if (!confirmed) return;
 
-    msg(
-      "adminMessage",
-      "Announcement deleted."
-    );
 
-    await loadAdminList();
+    try {
 
-  } catch (err) {
+        await deleteDoc(
+            doc(
+                db,
+                "announcements",
+                id
+            )
+        );
 
-    console.error(err);
 
-    msg(
-      "adminMessage",
-      friendlyError(err),
-      true
-    );
-  }
+        msg(
+            adminMessage,
+            "Announcement deleted."
+        );
+
+
+        await loadAdminList();
+
+    } catch (error) {
+
+        console.error(error);
+
+        msg(
+            adminMessage,
+            "Unable to delete announcement.",
+            true
+        );
+
+    }
+
 }
 
 
-/* ==========================================
-   CANCEL EDIT
-========================================== */
-
-$("cancelEditBtn").addEventListener(
-  "click",
-  resetAnnouncementForm
-);
-
+// =====================================================
+// RESET ANNOUNCEMENT FORM
+// =====================================================
 
 function resetAnnouncementForm() {
 
-  $("announcementForm").reset();
+    announcementForm.reset();
 
-  $("announcementId").value = "";
+    announcementId.value = "";
 
-  $("formTitle").textContent =
-    "Add Announcement";
+    formTitle.textContent =
+        "Add Announcement";
 
-  $("cancelEditBtn")
-    .classList
-    .add("hidden");
+    cancelEditBtn.classList.add(
+        "hidden"
+    );
+
 }
 
 
-/* ==========================================
-   LOAD CURRENT ANNOUNCEMENTS
-========================================== */
+cancelEditBtn.addEventListener(
+    "click",
+    () => {
 
-async function seedCurrentAnnouncements() {
+        resetAnnouncementForm();
 
-  const sample = [
+        msg(adminMessage, "");
 
-    {
-      subject: "CC2(M)",
-      title: "CC2(M) Announcement",
-      details:
-        "Please check your class instructions and prepare for the next activity.",
-      dueDate: "2026-09-18"
-    },
-
-    {
-      subject: "PLF",
-      title: "PLF Midterm Review",
-      details:
-        "Review Chapters 1–3 for the online midterm.",
-      dueDate: "2026-09-22"
-    },
-
-    {
-      subject: "STS 1",
-      title: "STS 1 Reminder",
-      details:
-        "Check the latest class instructions and submission requirements.",
-      dueDate: "2026-09-20"
     }
+);
 
-  ];
 
-  try {
+// =====================================================
+// SEED CURRENT ANNOUNCEMENTS
+// =====================================================
 
-    showLoading(
-      "Loading announcements..."
-    );
+seedBtn.addEventListener(
+    "click",
+    async () => {
 
-    for (const a of sample) {
+        const samples = [
 
-      await addDoc(
-        collection(db, "announcements"),
-        {
-          ...a,
-          createdAt:
-            serverTimestamp(),
-          updatedAt:
-            serverTimestamp()
+            {
+                id: "seed_cc2m",
+                subject: "CC2(M)",
+                title: "CC2(M) Reminder",
+                details:
+                    "Please review the assigned lessons and prepare for the upcoming activity.",
+                dueDate: "2026-09-18"
+            },
+
+            {
+                id: "seed_plf",
+                subject: "PLF",
+                title: "PLF Midterm Review",
+                details:
+                    "Review Chapters 1–3 for the midterm.",
+                dueDate: "2026-09-22"
+            },
+
+            {
+                id: "seed_sts",
+                subject: "STS 1",
+                title: "STS 1 Reminder",
+                details:
+                    "Please prepare the required materials and review the previous discussion.",
+                dueDate: "2026-09-20"
+            }
+
+        ];
+
+
+        try {
+
+            for (const sample of samples) {
+
+                const {
+                    id,
+                    ...data
+                } = sample;
+
+
+                await setDoc(
+                    doc(
+                        db,
+                        "announcements",
+                        id
+                    ),
+                    {
+                        ...data,
+                        updatedAt:
+                            serverTimestamp()
+                    },
+                    {
+                        merge: true
+                    }
+                );
+
+            }
+
+
+            msg(
+                adminMessage,
+                "Current announcements loaded."
+            );
+
+
+            await loadAdminList();
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                adminMessage,
+                "Unable to load announcements.",
+                true
+            );
+
         }
-      );
+
+    }
+);
+
+
+// =====================================================
+// IMPORTANT EVENT
+// =====================================================
+//
+// Firestore location:
+//
+// siteSettings
+//     └── importantEvent
+//
+// The document can be created, edited,
+// or completely deleted by the admin.
+// =====================================================
+
+
+// -----------------------------------------------------
+// LOAD IMPORTANT EVENT FOR STUDENTS
+// -----------------------------------------------------
+
+async function loadImportantEvent() {
+
+    try {
+
+        const snapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "siteSettings",
+                    "importantEvent"
+                )
+            );
+
+
+        // No event exists
+        if (!snapshot.exists()) {
+
+            importantEvent.classList.add(
+                "hidden"
+            );
+
+            return;
+        }
+
+
+        const data =
+            snapshot.data();
+
+
+        // Fill event information
+        eventLabel.textContent =
+            data.label || "";
+
+        eventTitle.textContent =
+            data.title || "";
+
+        eventDate.textContent =
+            data.date || "";
+
+        eventDetails.textContent =
+            data.details || "";
+
+
+        // Show event
+        importantEvent.classList.remove(
+            "hidden"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load important event:",
+            error
+        );
+
+
+        importantEvent.classList.add(
+            "hidden"
+        );
+
     }
 
-    await loadAdminList();
-
-    hideLoading();
-
-    msg(
-      "adminMessage",
-      "Current announcements loaded."
-    );
-
-  } catch (err) {
-
-    hideLoading();
-
-    console.error(err);
-
-    msg(
-      "adminMessage",
-      friendlyError(err),
-      true
-    );
-  }
 }
 
 
-/* ==========================================
-   INITIALIZE
-========================================== */
+// -----------------------------------------------------
+// LOAD EVENT INTO ADMIN FORM
+// -----------------------------------------------------
+
+async function loadEventForAdmin() {
+
+    try {
+
+        const snapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "siteSettings",
+                    "importantEvent"
+                )
+            );
+
+
+        if (!snapshot.exists()) {
+
+            resetEventForm();
+
+            return;
+        }
+
+
+        const data =
+            snapshot.data();
+
+
+        eventLabelInput.value =
+            data.label || "";
+
+        eventTitleInput.value =
+            data.title || "";
+
+        eventDateInput.value =
+            data.date || "";
+
+        eventDetailsInput.value =
+            data.details || "";
+
+
+        msg(
+            eventMessage,
+            "Current important event loaded."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        msg(
+            eventMessage,
+            "Unable to load important event.",
+            true
+        );
+
+    }
+
+}
+
+
+// -----------------------------------------------------
+// ADD / SAVE IMPORTANT EVENT
+// -----------------------------------------------------
+
+eventForm.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        const label =
+            eventLabelInput.value.trim();
+
+        const title =
+            eventTitleInput.value.trim();
+
+        const date =
+            eventDateInput.value.trim();
+
+        const details =
+            eventDetailsInput.value.trim();
+
+
+        if (!label || !title) {
+
+            msg(
+                eventMessage,
+                "Event Label and Event Title are required.",
+                true
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await setDoc(
+                doc(
+                    db,
+                    "siteSettings",
+                    "importantEvent"
+                ),
+                {
+                    label: label,
+                    title: title,
+                    date: date,
+                    details: details,
+                    updatedAt:
+                        serverTimestamp()
+                }
+            );
+
+
+            msg(
+                eventMessage,
+                "Important event saved successfully."
+            );
+
+
+            // Immediately update student view
+            eventLabel.textContent =
+                label;
+
+            eventTitle.textContent =
+                title;
+
+            eventDate.textContent =
+                date;
+
+            eventDetails.textContent =
+                details;
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                eventMessage,
+                "Unable to save important event.",
+                true
+            );
+
+        }
+
+    }
+);
+
+
+// -----------------------------------------------------
+// REMOVE IMPORTANT EVENT ENTIRELY
+// -----------------------------------------------------
+
+removeEventBtn.addEventListener(
+    "click",
+    async () => {
+
+        const confirmed =
+            confirm(
+                "Remove the important event completely? It will no longer appear to students."
+            );
+
+
+        if (!confirmed) return;
+
+
+        try {
+
+            await deleteDoc(
+                doc(
+                    db,
+                    "siteSettings",
+                    "importantEvent"
+                )
+            );
+
+
+            // Clear admin form
+            resetEventForm();
+
+
+            // Completely hide student event
+            importantEvent.classList.add(
+                "hidden"
+            );
+
+
+            msg(
+                eventMessage,
+                "Important event removed completely."
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            msg(
+                eventMessage,
+                "Unable to remove important event.",
+                true
+            );
+
+        }
+
+    }
+);
+
+
+// -----------------------------------------------------
+// RESET EVENT FORM
+// -----------------------------------------------------
+
+function resetEventForm() {
+
+    eventForm.reset();
+
+    eventLabelInput.value = "";
+    eventTitleInput.value = "";
+    eventDateInput.value = "";
+    eventDetailsInput.value = "";
+
+}
+
+
+// =====================================================
+// REFRESH
+// =====================================================
+
+refreshBtn.addEventListener(
+    "click",
+    async () => {
+
+        await loadAnnouncements();
+
+        await loadImportantEvent();
+
+    }
+);
+
+
+// =====================================================
+// HTML ESCAPE
+// =====================================================
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+// =====================================================
+// INITIAL UI
+// =====================================================
 
 populateSubjectSelect();
+
 renderOfficers();
+
+setScreen("login");
