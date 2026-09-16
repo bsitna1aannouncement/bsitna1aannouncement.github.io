@@ -35,7 +35,7 @@ button {
 
 .site-header {
   background: var(--red);
-  color: white;
+  color: var(--white);
   padding: 24px clamp(18px, 5vw, 70px);
   display: flex;
   justify-content: space-between;
@@ -114,7 +114,7 @@ button {
 
 .tab.active {
   background: var(--red);
-  color: white;
+  color: var(--white);
 }
 
 
@@ -139,7 +139,7 @@ textarea {
   padding: 12px 13px;
   border: 1px solid #cfc9bd;
   border-radius: 9px;
-  background: white;
+  background: var(--white);
   outline: none;
 }
 
@@ -176,7 +176,7 @@ textarea {
 
 .btn-red {
   background: var(--red);
-  color: white;
+  color: var(--white);
 }
 
 .btn-red:hover {
@@ -185,7 +185,7 @@ textarea {
 
 .btn-dark {
   background: var(--black);
-  color: white;
+  color: var(--white);
 }
 
 .btn-outline {
@@ -269,7 +269,7 @@ textarea {
 .filter-btn.active,
 .filter-btn:hover {
   background: var(--red);
-  color: white;
+  color: var(--white);
   border-color: var(--red);
 }
 
@@ -364,7 +364,7 @@ textarea {
 
 .officer-card {
   background: var(--red);
-  color: white;
+  color: var(--white);
   padding: 22px;
   border-radius: 16px;
   border: 2px solid var(--black);
@@ -389,7 +389,7 @@ textarea {
 
 .admin-banner {
   background: var(--black);
-  color: white;
+  color: var(--white);
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -498,19 +498,19 @@ footer {
 }
 
 .ring-red {
-  border-color: #7b1018 transparent #7b1018 transparent;
+  border-color: var(--red) transparent var(--red) transparent;
   transform: rotateX(65deg) rotateZ(20deg);
   animation: ringRed 1.2s linear infinite;
 }
 
 .ring-black {
-  border-color: #111111 transparent #111111 transparent;
+  border-color: var(--black) transparent var(--black) transparent;
   transform: rotateY(65deg) rotateZ(-20deg);
   animation: ringBlack 1s linear infinite reverse;
 }
 
 .ring-yellow {
-  border-color: #ffffff transparent #ffffff transparent;
+  border-color: var(--white) transparent var(--white) transparent;
   transform: rotateX(65deg) rotateY(65deg);
   animation: ringYellow 1.4s linear infinite;
 }
@@ -667,4 +667,4 @@ footer {
     width: 100%;
   }
 
-}
+  }
