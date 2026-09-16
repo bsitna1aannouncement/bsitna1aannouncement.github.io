@@ -38,34 +38,20 @@
 
 <main class="container">
 
-    <!-- ==============================
-         LOGIN SECTION
-    =============================== -->
-
+    <!-- LOGIN SECTION -->
     <section id="loginSection" class="login-card">
 
         <div class="login-tabs">
-
-            <button
-                id="studentTab"
-                class="tab active"
-                type="button">
+            <button id="studentTab" class="tab active" type="button">
                 Student
             </button>
 
-            <button
-                id="adminTab"
-                class="tab"
-                type="button">
+            <button id="adminTab" class="tab" type="button">
                 Admin
             </button>
-
         </div>
 
-
-        <h2 id="loginTitle">
-            Student Login
-        </h2>
+        <h2 id="loginTitle">Student Login</h2>
 
         <p id="loginHint" class="small-text">
             Sign in to view class announcements.
@@ -73,25 +59,19 @@
 
 
         <!-- STUDENT LOGIN -->
-
         <form id="studentLoginForm">
 
-            <label for="email">
-                Email
-            </label>
+            <label for="email">Email</label>
 
             <input
                 id="email"
                 type="email"
                 placeholder="Enter your email"
                 autocomplete="email"
-                required
-            >
+                required>
 
 
-            <label for="password">
-                Password
-            </label>
+            <label for="password">Password</label>
 
             <div class="password-field">
 
@@ -100,8 +80,7 @@
                     type="password"
                     placeholder="Enter your password"
                     autocomplete="current-password"
-                    required
-                >
+                    required>
 
                 <button
                     type="button"
@@ -129,27 +108,19 @@
 
 
         <!-- ADMIN LOGIN -->
+        <form id="adminLoginForm" class="hidden">
 
-        <form
-            id="adminLoginForm"
-            class="hidden">
-
-            <label for="adminEmail">
-                Email
-            </label>
+            <label for="adminEmail">Email</label>
 
             <input
                 id="adminEmail"
                 type="email"
                 placeholder="Enter your email"
                 autocomplete="email"
-                required
-            >
+                required>
 
 
-            <label for="adminPassword">
-                Password
-            </label>
+            <label for="adminPassword">Password</label>
 
             <div class="password-field">
 
@@ -158,8 +129,7 @@
                     type="password"
                     placeholder="Enter your password"
                     autocomplete="current-password"
-                    required
-                >
+                    required>
 
                 <button
                     type="button"
@@ -187,7 +157,6 @@
 
 
         <!-- CREATE STUDENT ACCOUNT -->
-
         <div id="studentRegisterBox">
 
             <p class="small-text">
@@ -204,26 +173,15 @@
         </div>
 
 
-        <p
-            id="loginMessage"
-            class="message">
-        </p>
+        <p id="loginMessage" class="message"></p>
 
     </section>
 
 
+    <!-- REGISTER SECTION -->
+    <section id="registerSection" class="login-card hidden">
 
-    <!-- ==============================
-         REGISTER SECTION
-    =============================== -->
-
-    <section
-        id="registerSection"
-        class="login-card hidden">
-
-        <h2>
-            Create Student Account
-        </h2>
+        <h2>Create Student Account</h2>
 
         <p class="small-text">
             Create your account to access class announcements.
@@ -241,8 +199,7 @@
                 type="text"
                 placeholder="Enter your username"
                 autocomplete="username"
-                required
-            >
+                required>
 
 
             <label for="registerEmail">
@@ -254,8 +211,7 @@
                 type="email"
                 placeholder="Enter your email"
                 autocomplete="email"
-                required
-            >
+                required>
 
 
             <label for="registerPassword">
@@ -269,8 +225,7 @@
                     type="password"
                     placeholder="Create a password"
                     autocomplete="new-password"
-                    required
-                >
+                    required>
 
                 <button
                     type="button"
@@ -299,8 +254,7 @@
                     type="password"
                     placeholder="Re-enter your password"
                     autocomplete="new-password"
-                    required
-                >
+                    required>
 
                 <button
                     type="button"
@@ -335,38 +289,22 @@
         </button>
 
 
-        <p
-            id="registerMessage"
-            class="message">
-        </p>
+        <p id="registerMessage" class="message"></p>
 
     </section>
 
 
-
-    <!-- ==============================
-         STUDENT CONTENT
-    =============================== -->
-
-    <section
-        id="studentContent"
-        class="hidden">
-
-
-        <!-- ANNOUNCEMENTS HEADER -->
+    <!-- STUDENT CONTENT -->
+    <section id="studentContent" class="hidden">
 
         <div class="section-heading">
 
             <div>
-
-                <h2>
-                    Announcements
-                </h2>
+                <h2>Announcements</h2>
 
                 <p>
                     Stay updated with class activities and requirements.
                 </p>
-
             </div>
 
             <button
@@ -379,15 +317,7 @@
         </div>
 
 
-        <!-- COURSE FILTERS -->
-
-        <div
-            id="subjectFilters"
-            class="filters">
-        </div>
-
-
-        <!-- ANNOUNCEMENT CARDS -->
+        <div id="subjectFilters" class="filters"></div>
 
         <div
             id="announcementGrid"
@@ -395,67 +325,43 @@
         </div>
 
 
-        <!-- ==============================
-             MIDTERM INFORMATION
-        =============================== -->
+        <!-- IMPORTANT EVENT -->
+        <section
+            id="importantEvent"
+            class="midterm-card hidden">
 
-        <section class="midterm-card">
-
-            <span class="eyebrow">
-                CLASS-WIDE
+            <span
+                id="eventLabel"
+                class="eyebrow">
             </span>
 
-            <h2>
-                F2F MIDTERM SCHEDULE
-            </h2>
+            <h2 id="eventTitle"></h2>
 
-            <div class="big-date">
-                September 21–26
+            <div
+                id="eventDate"
+                class="big-date">
             </div>
 
-            <p>
-                Don't forget to review!
-            </p>
-
-            <hr>
-
-            <h3>
-                Online Midterm/s
-            </h3>
-
-            <p>
-                <strong>PLF</strong> — Chapters 1–3
-            </p>
-
-            <p>
-                <strong>SEPT. 22–26</strong>
+            <p
+                id="eventDetails"
+                class="details">
             </p>
 
         </section>
 
 
-        <!-- ==============================
-             CLASS OFFICERS
-        =============================== -->
-
+        <!-- CLASS OFFICERS -->
         <section class="officers-board">
 
             <div class="section-heading">
 
                 <div>
+                    <h2>Class Officers</h2>
 
-                    <h2>
-                        Class Officers
-                    </h2>
-
-                    <p>
-                        BSIT NA 1A
-                    </p>
-
+                    <p>BSIT NA 1A</p>
                 </div>
 
             </div>
-
 
             <div
                 id="officerGrid"
@@ -467,17 +373,8 @@
     </section>
 
 
-
-    <!-- ==============================
-         ADMIN CONTENT
-    =============================== -->
-
-    <section
-        id="adminContent"
-        class="hidden">
-
-
-        <!-- ADMIN HEADER -->
+    <!-- ADMIN CONTENT -->
+    <section id="adminContent" class="hidden">
 
         <div class="admin-banner">
 
@@ -497,11 +394,14 @@
 
             </div>
 
+
             <button
                 id="seedBtn"
                 class="btn btn-red"
                 type="button">
+
                 Load Current Announcements
+
             </button>
 
         </div>
@@ -511,7 +411,6 @@
 
 
             <!-- ADD / EDIT ANNOUNCEMENT -->
-
             <section class="admin-card">
 
                 <h2 id="formTitle">
@@ -523,11 +422,8 @@
 
                     <input
                         type="hidden"
-                        id="announcementId"
-                    >
+                        id="announcementId">
 
-
-                    <!-- COURSE -->
 
                     <label for="subjectInput">
                         Course
@@ -539,8 +435,6 @@
                     </select>
 
 
-                    <!-- TITLE -->
-
                     <label for="titleInput">
                         Title
                     </label>
@@ -549,11 +443,8 @@
                         id="titleInput"
                         type="text"
                         placeholder="Announcement title"
-                        required
-                    >
+                        required>
 
-
-                    <!-- DETAILS -->
 
                     <label for="detailsInput">
                         Details
@@ -567,33 +458,33 @@
                     </textarea>
 
 
-                    <!-- DATE -->
-
                     <label for="dateInput">
                         Date / Due Date
                     </label>
 
                     <input
                         id="dateInput"
-                        type="date"
-                    >
+                        type="date">
 
-
-                    <!-- FORM BUTTONS -->
 
                     <div class="form-actions">
 
                         <button
                             type="submit"
                             class="btn btn-red">
+
                             Save Announcement
+
                         </button>
+
 
                         <button
                             type="button"
                             id="cancelEditBtn"
                             class="btn btn-outline hidden">
+
                             Cancel Edit
+
                         </button>
 
                     </div>
@@ -609,17 +500,115 @@
             </section>
 
 
-
             <!-- MANAGE ANNOUNCEMENTS -->
-
             <section class="admin-card">
 
                 <h2>
                     Manage Announcements
                 </h2>
 
-                <div id="adminList">
-                </div>
+                <div id="adminList"></div>
+
+            </section>
+
+
+            <!-- MANAGE IMPORTANT EVENT -->
+            <section class="admin-card event-admin-card">
+
+                <h2>
+                    Manage Important Event
+                </h2>
+
+                <p class="small-text">
+                    Add, rename, update, or completely remove the important event shown to students.
+                </p>
+
+
+                <form id="eventForm">
+
+
+                    <!-- EVENT LABEL -->
+                    <label for="eventLabelInput">
+                        Event Label
+                    </label>
+
+                    <input
+                        id="eventLabelInput"
+                        type="text"
+                        placeholder="Example: CLASS-WIDE"
+                        required>
+
+
+                    <!-- EVENT TITLE -->
+                    <label for="eventTitleInput">
+                        Event Title
+                    </label>
+
+                    <input
+                        id="eventTitleInput"
+                        type="text"
+                        placeholder="Example: F2F MIDTERM SCHEDULE"
+                        required>
+
+
+                    <!-- MAIN DATE -->
+                    <label for="eventDateInput">
+                        Main Date
+                    </label>
+
+                    <input
+                        id="eventDateInput"
+                        type="text"
+                        placeholder="Example: September 21–26">
+
+
+                    <!-- EVENT DETAILS -->
+                    <label for="eventDetailsInput">
+                        Event Details
+                    </label>
+
+                    <textarea
+                        id="eventDetailsInput"
+                        rows="7"
+                        placeholder="Example:
+Online Midterm/s
+PLF — Chapters 1–3
+SEPT. 22–26">
+                    </textarea>
+
+
+                    <div class="form-actions">
+
+
+                        <!-- ADD / SAVE -->
+                        <button
+                            type="submit"
+                            class="btn btn-red">
+
+                            Add / Save Event
+
+                        </button>
+
+
+                        <!-- REMOVE ENTIRE EVENT -->
+                        <button
+                            type="button"
+                            id="removeEventBtn"
+                            class="btn btn-outline">
+
+                            Remove Event
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+                <p
+                    id="eventMessage"
+                    class="message">
+                </p>
 
             </section>
 
@@ -630,20 +619,10 @@
 </main>
 
 
-
-<!-- ==============================
-     FOOTER
-=============================== -->
-
 <footer>
     BSIT NA 1A • Class Announcements
 </footer>
 
-
-
-<!-- ==============================
-     JAVASCRIPT
-=============================== -->
 
 <script
     type="module"
