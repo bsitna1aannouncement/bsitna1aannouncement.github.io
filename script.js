@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -45,6 +46,8 @@ const db = getFirestore(app);
 
 const $ = id => document.getElementById(id);
 
+const ADMIN_UID = "ivsmIAHXaES7VA6n3UHTaYUTRMs2";
+
 const subjects = [
   "All",
   "CC2(M)",
@@ -56,6 +59,33 @@ const subjects = [
   "PLF",
   "ENG",
   "HUM 1"
+];
+
+const officers = [
+  {
+    role: "Mayor",
+    name: "Xantheigh Robles"
+  },
+  {
+    role: "Vice Mayor",
+    name: "Airiz Shanaya"
+  },
+  {
+    role: "Secretary",
+    name: "Kurt Orito"
+  },
+  {
+    role: "Treasurer",
+    name: "Jack Daniel Pasion"
+  },
+  {
+    role: "Auditor",
+    name: "Honey Antiquina"
+  },
+  {
+    role: "Public Information Officer (PIO)",
+    name: "Joyce Cortez"
+  }
 ];
 
 let currentFilter = "All";
@@ -82,7 +112,8 @@ function msg(id, text, error = false) {
   if (!element) return;
 
   element.textContent = text;
-  element.style.color = error ? "#7b1018" : "#666";
+  element.style.color =
+    error ? "#0c0c61" : "#666";
 }
 
 function showLoading(text) {
@@ -101,7 +132,8 @@ function hideLoading() {
   if (!auth.currentUser) {
     badge.textContent = "Not signed in";
   } else {
-    badge.textContent = auth.currentUser.email || "Signed in";
+    badge.textContent =
+      auth.currentUser.email || "Signed in";
   }
 }
 
@@ -111,6 +143,7 @@ function hideLoading() {
 ========================================== */
 
 function setScreen(mode) {
+
   $("loginSection").classList.toggle(
     "hidden",
     mode !== "login"
@@ -180,6 +213,7 @@ function setupPasswordToggle(
   inputId,
   iconId
 ) {
+
   const button = $(buttonId);
   const input = $(inputId);
   const icon = $(iconId);
@@ -194,30 +228,39 @@ function setupPasswordToggle(
     "Show password"
   );
 
-  button.addEventListener("click", () => {
-    const isPassword =
-      input.type === "password";
+  button.addEventListener(
+    "click",
+    () => {
 
-    if (isPassword) {
-      input.type = "text";
-      icon.src = eyeOpenIcon;
-      icon.alt = "Hide password";
+      const isPassword =
+        input.type === "password";
 
-      button.setAttribute(
-        "aria-label",
-        "Hide password"
-      );
-    } else {
-      input.type = "password";
-      icon.src = eyeClosedIcon;
-      icon.alt = "Show password";
+      if (isPassword) {
 
-      button.setAttribute(
-        "aria-label",
-        "Show password"
-      );
+        input.type = "text";
+
+        icon.src = eyeOpenIcon;
+        icon.alt = "Hide password";
+
+        button.setAttribute(
+          "aria-label",
+          "Hide password"
+        );
+
+      } else {
+
+        input.type = "password";
+
+        icon.src = eyeClosedIcon;
+        icon.alt = "Show password";
+
+        button.setAttribute(
+          "aria-label",
+          "Show password"
+        );
+      }
     }
-  });
+  );
 }
 
 setupPasswordToggle(
@@ -252,11 +295,22 @@ setupPasswordToggle(
 $("studentTab").addEventListener(
   "click",
   () => {
-    $("studentTab").classList.add("active");
-    $("adminTab").classList.remove("active");
 
-    $("studentLoginForm").classList.remove("hidden");
-    $("adminLoginForm").classList.add("hidden");
+    $("studentTab")
+      .classList
+      .add("active");
+
+    $("adminTab")
+      .classList
+      .remove("active");
+
+    $("studentLoginForm")
+      .classList
+      .remove("hidden");
+
+    $("adminLoginForm")
+      .classList
+      .add("hidden");
 
     $("loginTitle").textContent =
       "Student Login";
@@ -276,11 +330,22 @@ $("studentTab").addEventListener(
 $("adminTab").addEventListener(
   "click",
   () => {
-    $("adminTab").classList.add("active");
-    $("studentTab").classList.remove("active");
 
-    $("adminLoginForm").classList.remove("hidden");
-    $("studentLoginForm").classList.add("hidden");
+    $("adminTab")
+      .classList
+      .add("active");
+
+    $("studentTab")
+      .classList
+      .remove("active");
+
+    $("adminLoginForm")
+      .classList
+      .remove("hidden");
+
+    $("studentLoginForm")
+      .classList
+      .add("hidden");
 
     $("loginTitle").textContent =
       "Admin Login";
@@ -304,7 +369,9 @@ $("adminTab").addEventListener(
 $("registerBtn").addEventListener(
   "click",
   () => {
+
     msg("loginMessage", "");
+
     setScreen("register");
   }
 );
@@ -313,15 +380,26 @@ $("registerBtn").addEventListener(
 $("backToLoginBtn").addEventListener(
   "click",
   () => {
+
     msg("registerMessage", "");
 
     setScreen("login");
 
-    $("studentTab").classList.add("active");
-    $("adminTab").classList.remove("active");
+    $("studentTab")
+      .classList
+      .add("active");
 
-    $("studentLoginForm").classList.remove("hidden");
-    $("adminLoginForm").classList.add("hidden");
+    $("adminTab")
+      .classList
+      .remove("active");
+
+    $("studentLoginForm")
+      .classList
+      .remove("hidden");
+
+    $("adminLoginForm")
+      .classList
+      .add("hidden");
 
     $("loginTitle").textContent =
       "Student Login";
@@ -343,18 +421,23 @@ $("backToLoginBtn").addEventListener(
 $("studentLoginForm").addEventListener(
   "submit",
   async e => {
+
     e.preventDefault();
 
     msg("loginMessage", "");
+
     showLoading("Signing in...");
 
     try {
+
       await signInWithEmailAndPassword(
         auth,
         $("email").value.trim(),
         $("password").value
       );
+
     } catch (err) {
+
       hideLoading();
 
       msg(
@@ -374,18 +457,23 @@ $("studentLoginForm").addEventListener(
 $("adminLoginForm").addEventListener(
   "submit",
   async e => {
+
     e.preventDefault();
 
     msg("loginMessage", "");
+
     showLoading("Signing in...");
 
     try {
+
       await signInWithEmailAndPassword(
         auth,
         $("adminEmail").value.trim(),
         $("adminPassword").value
       );
+
     } catch (err) {
+
       hideLoading();
 
       msg(
@@ -405,6 +493,7 @@ $("adminLoginForm").addEventListener(
 $("registerForm").addEventListener(
   "submit",
   async e => {
+
     e.preventDefault();
 
     const username =
@@ -420,6 +509,7 @@ $("registerForm").addEventListener(
       $("registerConfirmPassword").value;
 
     if (password !== confirm) {
+
       msg(
         "registerMessage",
         "Passwords do not match.",
@@ -432,6 +522,7 @@ $("registerForm").addEventListener(
     showLoading("Creating account...");
 
     try {
+
       const cred =
         await createUserWithEmailAndPassword(
           auth,
@@ -457,6 +548,7 @@ $("registerForm").addEventListener(
       );
 
     } catch (err) {
+
       hideLoading();
 
       msg(
@@ -476,9 +568,13 @@ $("registerForm").addEventListener(
 $("logoutBtn").addEventListener(
   "click",
   async () => {
+
     try {
+
       await signOut(auth);
+
     } catch (err) {
+
       console.error(err);
     }
   }
@@ -510,9 +606,11 @@ $("seedBtn").addEventListener(
 ========================================== */
 
 function friendlyError(err) {
+
   const code = err?.code || "";
 
   const map = {
+
     "auth/invalid-credential":
       "Incorrect email or password.",
 
@@ -550,9 +648,11 @@ function friendlyError(err) {
 onAuthStateChanged(
   auth,
   async user => {
+
     hideLoading();
 
     if (!user) {
+
       $("accountBadge").textContent =
         "Not signed in";
 
@@ -565,15 +665,18 @@ onAuthStateChanged(
       user.email || "Signed in";
 
     try {
+
       const adminSnap =
         await getDoc(
           doc(db, "admins", user.uid)
         );
 
       if (
+        user.uid === ADMIN_UID &&
         adminSnap.exists() &&
         adminSnap.data().role === "admin"
       ) {
+
         setScreen("admin");
 
         populateSubjectSelect();
@@ -581,12 +684,14 @@ onAuthStateChanged(
         await loadAdminList();
 
       } else {
+
         setScreen("student");
 
         await loadAnnouncements();
       }
 
     } catch (err) {
+
       console.error(
         "Auth/Firestore error:",
         err
@@ -605,6 +710,7 @@ onAuthStateChanged(
 ========================================== */
 
 function renderFilters() {
+
   $("subjectFilters").innerHTML =
     subjects
       .map(
@@ -615,8 +721,7 @@ function renderFilters() {
                 ? "active"
                 : ""
             }"
-            data-subject="${esc(s)}"
-          >
+            data-subject="${esc(s)}">
             ${esc(s)}
           </button>
         `
@@ -626,9 +731,11 @@ function renderFilters() {
   document
     .querySelectorAll(".filter-btn")
     .forEach(btn => {
+
       btn.addEventListener(
         "click",
         () => {
+
           currentFilter =
             btn.dataset.subject;
 
@@ -645,7 +752,9 @@ function renderFilters() {
 ========================================== */
 
 async function loadAnnouncements() {
+
   try {
+
     const snap =
       await getDocs(
         collection(db, "announcements")
@@ -669,6 +778,7 @@ async function loadAnnouncements() {
     renderAnnouncements();
 
   } catch (err) {
+
     console.error(
       "Unable to load announcements:",
       err
@@ -686,6 +796,7 @@ async function loadAnnouncements() {
 ========================================== */
 
 function renderAnnouncements() {
+
   const list =
     currentFilter === "All"
       ? announcements
@@ -695,6 +806,7 @@ function renderAnnouncements() {
         );
 
   if (!list.length) {
+
     $("announcementGrid").innerHTML = `
       <p>No announcements available.</p>
     `;
@@ -707,16 +819,22 @@ function renderAnnouncements() {
       .map(
         a => `
           <article class="announcement-card">
+
             <div class="announcement-subject">
               ${esc(a.subject || "CLASS")}
             </div>
 
-            <h3>${esc(a.title || "")}</h3>
+            <h3>
+              ${esc(a.title || "")}
+            </h3>
 
-            <p>${esc(a.details || "")}</p>
+            <p class="details">
+              ${esc(a.details || "")}
+            </p>
 
             <strong>Due:</strong>
             ${esc(formatDate(a.dueDate))}
+
           </article>
         `
       )
@@ -729,6 +847,7 @@ function renderAnnouncements() {
 ========================================== */
 
 function populateSubjectSelect() {
+
   $("subjectInput").innerHTML =
     subjects
       .filter(s => s !== "All")
@@ -741,10 +860,38 @@ function populateSubjectSelect() {
 
 
 /* ==========================================
+   OFFICERS
+========================================== */
+
+function renderOfficers() {
+
+  $("officerGrid").innerHTML =
+    officers
+      .map(
+        officer => `
+          <div class="officer-card">
+
+            <div class="officer-role">
+              ${esc(officer.role)}
+            </div>
+
+            <h3>
+              ${esc(officer.name)}
+            </h3>
+
+          </div>
+        `
+      )
+      .join("");
+}
+
+
+/* ==========================================
    DATE
 ========================================== */
 
 function formatDate(date) {
+
   if (!date) {
     return "No date";
   }
@@ -772,12 +919,14 @@ function formatDate(date) {
 $("announcementForm").addEventListener(
   "submit",
   async e => {
+
     e.preventDefault();
 
     const id =
       $("announcementId").value;
 
     const data = {
+
       subject:
         $("subjectInput").value,
 
@@ -795,12 +944,16 @@ $("announcementForm").addEventListener(
     };
 
     try {
+
       if (id) {
+
         await updateDoc(
           doc(db, "announcements", id),
           data
         );
+
       } else {
+
         await addDoc(
           collection(db, "announcements"),
           {
@@ -821,6 +974,7 @@ $("announcementForm").addEventListener(
       await loadAdminList();
 
     } catch (err) {
+
       console.error(err);
 
       msg(
@@ -838,7 +992,9 @@ $("announcementForm").addEventListener(
 ========================================== */
 
 async function loadAdminList() {
+
   try {
+
     const snap =
       await getDocs(
         collection(db, "announcements")
@@ -864,29 +1020,33 @@ async function loadAdminList() {
             .map(
               a => `
                 <div class="admin-item">
+
                   <span>
+
                     ${esc(a.subject || "")}
+
                     <strong>
                       ${esc(a.title || "")}
                     </strong>
+
                     ${esc(
                       formatDate(a.dueDate)
                     )}
+
                   </span>
 
                   <button
                     type="button"
-                    data-edit="${a.id}"
-                  >
+                    data-edit="${a.id}">
                     Edit
                   </button>
 
                   <button
                     type="button"
-                    data-delete="${a.id}"
-                  >
+                    data-delete="${a.id}">
                     Delete
                   </button>
+
                 </div>
               `
             )
@@ -896,6 +1056,7 @@ async function loadAdminList() {
     document
       .querySelectorAll("[data-edit]")
       .forEach(button => {
+
         button.addEventListener(
           "click",
           () =>
@@ -908,6 +1069,7 @@ async function loadAdminList() {
     document
       .querySelectorAll("[data-delete]")
       .forEach(button => {
+
         button.addEventListener(
           "click",
           () =>
@@ -918,6 +1080,7 @@ async function loadAdminList() {
       });
 
   } catch (err) {
+
     console.error(
       "Admin list error:",
       err
@@ -935,7 +1098,9 @@ async function loadAdminList() {
 ========================================== */
 
 async function editAnnouncement(id) {
+
   try {
+
     const snap =
       await getDoc(
         doc(db, "announcements", id)
@@ -974,6 +1139,7 @@ async function editAnnouncement(id) {
     });
 
   } catch (err) {
+
     console.error(err);
 
     msg(
@@ -990,6 +1156,7 @@ async function editAnnouncement(id) {
 ========================================== */
 
 async function deleteAnnouncement(id) {
+
   if (
     !confirm(
       "Delete this announcement?"
@@ -999,6 +1166,7 @@ async function deleteAnnouncement(id) {
   }
 
   try {
+
     await deleteDoc(
       doc(db, "announcements", id)
     );
@@ -1011,6 +1179,7 @@ async function deleteAnnouncement(id) {
     await loadAdminList();
 
   } catch (err) {
+
     console.error(err);
 
     msg(
@@ -1032,6 +1201,7 @@ $("cancelEditBtn").addEventListener(
 );
 
 function resetAnnouncementForm() {
+
   $("announcementForm").reset();
 
   $("announcementId").value = "";
@@ -1050,7 +1220,9 @@ function resetAnnouncementForm() {
 ========================================== */
 
 async function seedCurrentAnnouncements() {
+
   const sample = [
+
     {
       subject: "CC2(M)",
       title: "CC2(M) Announcement",
@@ -1074,14 +1246,17 @@ async function seedCurrentAnnouncements() {
         "Check the latest class instructions and submission requirements.",
       dueDate: "2026-09-20"
     }
+
   ];
 
   try {
+
     showLoading(
       "Loading announcements..."
     );
 
     for (const a of sample) {
+
       await addDoc(
         collection(db, "announcements"),
         {
@@ -1104,6 +1279,7 @@ async function seedCurrentAnnouncements() {
     );
 
   } catch (err) {
+
     hideLoading();
 
     console.error(err);
@@ -1122,3 +1298,4 @@ async function seedCurrentAnnouncements() {
 ========================================== */
 
 populateSubjectSelect();
+renderOfficers();
