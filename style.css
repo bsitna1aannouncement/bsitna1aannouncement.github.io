@@ -31,7 +31,9 @@ button {
 }
 
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 
 .site-header {
   background: var(--red);
@@ -71,12 +73,19 @@ button {
 }
 
 
-/* GENERAL */
+/* =========================
+   CONTAINER
+========================= */
 
 .container {
   width: min(1180px, 92%);
   margin: 30px auto 60px;
 }
+
+
+/* =========================
+   CARDS
+========================= */
 
 .login-card,
 .admin-card,
@@ -89,7 +98,9 @@ button {
 }
 
 
-/* LOGIN */
+/* =========================
+   LOGIN
+========================= */
 
 .login-card {
   max-width: 460px;
@@ -117,9 +128,6 @@ button {
   color: var(--white);
 }
 
-
-/* FORM */
-
 h2,
 h3 {
   margin-top: 0;
@@ -130,6 +138,11 @@ label {
   margin: 15px 0 7px;
   font-weight: 700;
 }
+
+
+/* =========================
+   INPUTS
+========================= */
 
 input,
 select,
@@ -156,7 +169,9 @@ textarea {
 }
 
 
-/* BUTTONS */
+/* =========================
+   BUTTONS
+========================= */
 
 .btn {
   border: 0;
@@ -207,14 +222,9 @@ textarea {
 }
 
 
-/* TEXT */
-
-#studentRegisterBox {
-  margin-top: 20px;
-  text-align: center;
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
-}
+/* =========================
+   MESSAGES
+========================= */
 
 .message {
   min-height: 20px;
@@ -229,12 +239,19 @@ textarea {
   color: var(--muted);
 }
 
+
+/* =========================
+   HIDDEN
+========================= */
+
 .hidden {
   display: none !important;
 }
 
 
-/* SECTION */
+/* =========================
+   SECTION HEADING
+========================= */
 
 .section-heading {
   display: flex;
@@ -249,7 +266,21 @@ textarea {
 }
 
 
-/* FILTERS */
+/* =========================
+   STUDENT REGISTER
+========================= */
+
+#studentRegisterBox {
+  margin-top: 20px;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+
+/* =========================
+   FILTERS
+========================= */
 
 .filters {
   display: grid;
@@ -274,7 +305,9 @@ textarea {
 }
 
 
-/* ANNOUNCEMENTS */
+/* =========================
+   ANNOUNCEMENTS
+========================= */
 
 .announcement-grid {
   display: grid;
@@ -323,7 +356,9 @@ textarea {
 }
 
 
-/* MIDTERM */
+/* =========================
+   IMPORTANT EVENT
+========================= */
 
 .midterm-card {
   margin: 28px 0 45px;
@@ -331,10 +366,20 @@ textarea {
   border-left: 7px solid var(--black);
 }
 
+.midterm-card h2 {
+  margin: 8px 0;
+  line-height: 1.2;
+}
+
 .midterm-card .big-date {
   font-size: 1.35rem;
   font-weight: 900;
-  margin: 10px 0 4px;
+  margin: 10px 0 8px;
+}
+
+.midterm-card .details {
+  margin-top: 12px;
+  white-space: pre-line;
 }
 
 .midterm-card hr {
@@ -344,7 +389,9 @@ textarea {
 }
 
 
-/* OFFICERS */
+/* =========================
+   OFFICERS
+========================= */
 
 .officers-board {
   margin-top: 28px;
@@ -385,7 +432,9 @@ textarea {
 }
 
 
-/* ADMIN */
+/* =========================
+   ADMIN
+========================= */
 
 .admin-banner {
   background: var(--black);
@@ -419,6 +468,24 @@ textarea {
   margin-top: 18px;
 }
 
+.event-admin-card {
+  grid-column: 1 / -1;
+}
+
+.event-admin-card h2 {
+  margin-bottom: 6px;
+}
+
+.event-admin-card .small-text {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+
+/* =========================
+   ADMIN LIST
+========================= */
+
 .admin-item {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
@@ -430,6 +497,7 @@ textarea {
 
 .admin-item strong {
   display: block;
+  margin-top: 4px;
 }
 
 .admin-item small {
@@ -452,7 +520,9 @@ textarea {
 }
 
 
-/* FOOTER */
+/* =========================
+   FOOTER
+========================= */
 
 footer {
   text-align: center;
@@ -462,7 +532,9 @@ footer {
 }
 
 
-/* LOADING */
+/* =========================
+   LOADING
+========================= */
 
 .loading-box {
   text-align: center;
@@ -556,7 +628,9 @@ footer {
 }
 
 
-/* PASSWORD EYE BUTTON */
+/* =========================
+   PASSWORD
+========================= */
 
 .password-field {
   position: relative;
@@ -575,19 +649,14 @@ footer {
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-
   width: 32px;
   height: 32px;
-
   border: none;
   background: transparent;
-
   padding: 5px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
 }
 
@@ -603,7 +672,9 @@ footer {
 }
 
 
-/* MOBILE */
+/* =========================
+   TABLET
+========================= */
 
 @media (max-width: 850px) {
 
@@ -616,11 +687,20 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  .event-admin-card {
+    grid-column: auto;
+  }
+
   .filters {
     grid-template-columns: repeat(3, 1fr);
   }
 
 }
+
+
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 620px) {
 
