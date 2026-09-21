@@ -1,5 +1,5 @@
 const CACHE_NAME =
-  "bsit-na-1a-site-v1";
+  "bsit-na-1a-site-v2";
 
 
 const FILES_TO_CACHE = [
@@ -12,14 +12,7 @@ const FILES_TO_CACHE = [
 
   "./script.js",
 
-  /*
-   * Firebase modules used by script.js.
-   */
-  "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
-
-  "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
-
-  "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js"
+  "./service-worker.js"
 ];
 
 
@@ -39,14 +32,6 @@ self.addEventListener(
       .then(
         async cache => {
 
-          /*
-           * Cache each file separately.
-           *
-           * If one external Firebase file
-           * cannot be cached, the rest of
-           * the website can still be cached.
-           */
-
           await Promise.all(
             FILES_TO_CACHE.map(
               async url => {
@@ -62,10 +47,7 @@ self.addEventListener(
                     );
 
 
-                  if (
-                    response.ok ||
-                    response.type === "opaque"
-                  ) {
+                  if (response.ok) {
 
                     await cache.put(
                       url,
@@ -79,21 +61,26 @@ self.addEventListener(
                     "Could not cache:",
                     url
                   );
+
                 }
+
               }
             )
           );
+
         }
       )
+
     );
 
 
     /*
      * Activate the new service worker
-     * immediately.
+     * as soon as possible.
      */
 
     self.skipWaiting();
+
   }
 );
 
@@ -111,7 +98,9 @@ self.addEventListener(
       caches.keys()
         .then(
           cacheNames =>
+
             Promise.all(
+
               cacheNames
                 .filter(
                   name =>
@@ -124,12 +113,21 @@ self.addEventListener(
                       name
                     )
                 )
+
             )
+
         )
+
     );
 
 
+    /*
+     * Take control of open pages
+     * immediately.
+     */
+
     self.clients.claim();
+
   }
 );
 
@@ -150,7 +148,9 @@ self.addEventListener(
       event.request.method !==
       "GET"
     ) {
+
       return;
+
     }
 
 
@@ -163,29 +163,30 @@ self.addEventListener(
         cachedResponse => {
 
           /*
-           * If the website file is already
-           * cached, use it immediately.
-           *
-           * This allows the page itself to
-           * open without internet.
+           * Use the cached version if
+           * it is already available.
            */
 
           if (cachedResponse) {
 
             return cachedResponse;
+
           }
 
 
           /*
-           * For anything not cached,
-           * try the internet normally.
+           * Otherwise, get it from
+           * the internet.
            */
 
           return fetch(
             event.request
           );
+
         }
       )
+
     );
+
   }
 );
