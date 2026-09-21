@@ -10,13 +10,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   addDoc,
   doc,
   setDoc,
   getDoc,
-  getDocs,
+  getDocsFromServer,
+  getDocFromServer,
   updateDoc,
   deleteDoc,
   serverTimestamp
@@ -36,19 +39,31 @@ const firebaseConfig = {
   appId: "1:154328167720:web:a7ecc2af99128f09ae4c1d"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+
+const app =
+  initializeApp(firebaseConfig);
+
+
+const db =
+  initializeFirestore(app, {
+    localCache:
+      persistentLocalCache({
+        tabManager:
+          persistentMultipleTabManager()
+      })
+  });
+
+
+const auth =
+  getAuth(app);
 
 
 /* ==========================================
    VARIABLES
 ========================================== */
 
-const $ = id => document.getElementById(id);
-
-const ADMIN_UID =
-  "ivsmIAHXaES7VA6n3UHTaYUTRMs2";
+const $ = id =>
+  document.getElementById(id);
 
 
 const subjects = [
@@ -94,8 +109,31 @@ const officers = [
 
 
 let currentFilter = "All";
+
 let currentSort = "newest";
+
 let announcements = [];
+
+
+/* ==========================================
+   OFFLINE CACHE
+========================================== */
+
+const ANNOUNCEMENT_CACHE =
+  "bsit-na-1a-last-viewed-announcements";
+
+
+const EVENT_CACHE =
+  "bsit-na-1a-last-viewed-important-event";
+
+
+/* ==========================================
+   ONLINE / OFFLINE
+========================================== */
+
+function isOnline() {
+  return navigator.onLine;
+}
 
 
 /* ==========================================
@@ -123,11 +161,14 @@ function msg(
   error = false
 ) {
 
-  const element = $(id);
+  const element =
+    $(id);
 
-  if (!element) return;
+  if (!element)
+    return;
 
-  element.textContent = text;
+  element.textContent =
+    text;
 
   element.style.color =
     error
@@ -142,14 +183,17 @@ function setButtonLoading(
   normalText
 ) {
 
-  if (!button) return;
+  if (!button)
+    return;
+
 
   if (loadingText) {
 
     button.disabled = true;
 
     button.dataset.originalText =
-      normalText || button.textContent;
+      normalText ||
+      button.textContent;
 
     button.textContent =
       loadingText;
@@ -170,6 +214,7 @@ function friendlyError(err) {
 
   const code =
     err?.code || "";
+
 
   const map = {
 
@@ -195,11 +240,246 @@ function friendlyError(err) {
       "Firebase is temporarily unavailable. Please try again."
   };
 
+
   return (
     map[code] ||
     err?.message ||
     "Something went wrong. Please try again."
   );
+}
+
+
+/* ==========================================
+   LAST VIEWED ANNOUNCEMENTS CACHE
+========================================== */
+
+function saveAnnouncementsToCache(list) {
+
+  try {
+
+    const cleanList =
+      list.map(
+        a => ({
+          id:
+            a.id || "",
+
+          subject:
+            a.subject || "",
+
+          title:
+            a.title || "",
+
+          details:
+            a.details || "",
+
+          dueDate:
+            a.dueDate || "",
+
+          createdAt:
+            a.createdAt || null,
+
+          updatedAt:
+            a.updatedAt || null
+        })
+      );
+
+
+    localStorage.setItem(
+      ANNOUNCEMENT_CACHE,
+      JSON.stringify(cleanList)
+    );
+
+  } catch (err) {
+
+    console.warn(
+      "Unable to save offline announcements:",
+      err
+    );
+  }
+}
+
+
+function loadAnnouncementsFromCache() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        ANNOUNCEMENT_CACHE
+      );
+
+
+    if (!saved)
+      return false;
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    if (!Array.isArray(parsed))
+      return false;
+
+
+    announcements =
+      parsed;
+
+
+    renderFilters();
+
+    renderAnnouncements();
+
+
+    return true;
+
+  } catch (err) {
+
+    console.warn(
+      "Unable to read offline announcements:",
+      err
+    );
+
+
+    return false;
+  }
+}
+
+
+/* ==========================================
+   LAST VIEWED EVENT CACHE
+========================================== */
+
+function saveEventToCache(event) {
+
+  try {
+
+    const cleanEvent = {
+
+      label:
+        event.label || "",
+
+      title:
+        event.title || "",
+
+      date:
+        event.date || "",
+
+      details:
+        event.details || ""
+    };
+
+
+    localStorage.setItem(
+      EVENT_CACHE,
+      JSON.stringify(cleanEvent)
+    );
+
+  } catch (err) {
+
+    console.warn(
+      "Unable to save offline event:",
+      err
+    );
+  }
+}
+
+
+function loadEventFromCache() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        EVENT_CACHE
+      );
+
+
+    if (!saved)
+      return false;
+
+
+    const event =
+      JSON.parse(saved);
+
+
+    if (!event)
+      return false;
+
+
+    displayImportantEvent(
+      event
+    );
+
+
+    return true;
+
+  } catch (err) {
+
+    console.warn(
+      "Unable to read offline event:",
+      err
+    );
+
+
+    return false;
+  }
+}
+
+
+function removeEventFromCache() {
+
+  try {
+
+    localStorage.removeItem(
+      EVENT_CACHE
+    );
+
+  } catch (err) {
+
+    console.warn(err);
+  }
+}
+
+
+/* ==========================================
+   OFFLINE DISPLAY
+========================================== */
+
+function showOfflineMessage() {
+
+  const cached =
+    loadAnnouncementsFromCache();
+
+
+  if (!cached) {
+
+    $("announcementGrid")
+      .innerHTML = `
+        <div class="no-announcements">
+
+          <strong>
+            No offline announcements available.
+          </strong>
+
+          <p>
+            Connect to the internet once to load the announcements.
+          </p>
+
+        </div>
+      `;
+  }
+
+
+  const eventCached =
+    loadEventFromCache();
+
+
+  if (!eventCached) {
+
+    $("importantEvent")
+      .classList
+      .add("hidden");
+  }
 }
 
 
@@ -213,17 +493,21 @@ function showAdminLogin() {
     .classList
     .remove("hidden");
 
+
   $("adminContent")
     .classList
     .add("hidden");
+
 
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
 
+
   setTimeout(
-    () => $("adminEmail").focus(),
+    () =>
+      $("adminEmail").focus(),
     100
   );
 }
@@ -234,6 +518,7 @@ function hideAdminLogin() {
   $("loginSection")
     .classList
     .add("hidden");
+
 
   msg(
     "loginMessage",
@@ -248,16 +533,31 @@ function showAdminContent() {
     .classList
     .add("hidden");
 
+
   $("adminContent")
     .classList
     .remove("hidden");
+
+
+  $("studentContent")
+    .classList
+    .remove("hidden");
+
 
   $("accountBadge")
     .classList
     .remove("hidden");
 
-  $("accountBadge").textContent =
+
+  $("logoutBtn")
+    .classList
+    .remove("hidden");
+
+
+  $("accountBadge")
+    .textContent =
     "Admin";
+
 
   window.scrollTo({
     top: 0,
@@ -272,13 +572,21 @@ function showPublicSite() {
     .classList
     .add("hidden");
 
+
   $("adminContent")
     .classList
     .add("hidden");
 
+
   $("accountBadge")
     .classList
     .add("hidden");
+
+
+  $("logoutBtn")
+    .classList
+    .add("hidden");
+
 
   $("studentContent")
     .classList
@@ -329,15 +637,28 @@ function setupPasswordToggle(
   iconId
 ) {
 
-  const button = $(buttonId);
-  const input = $(inputId);
-  const icon = $(iconId);
+  const button =
+    $(buttonId);
 
-  if (!button || !input || !icon)
+  const input =
+    $(inputId);
+
+  const icon =
+    $(iconId);
+
+
+  if (
+    !button ||
+    !input ||
+    !icon
+  ) {
     return;
+  }
+
 
   icon.innerHTML =
     eyeClosed;
+
 
   button.setAttribute(
     "aria-label",
@@ -404,6 +725,7 @@ $("adminIconBtn").addEventListener(
       return;
     }
 
+
     showAdminLogin();
   }
 );
@@ -431,6 +753,7 @@ $("adminLoginForm").addEventListener(
 
     e.preventDefault();
 
+
     msg(
       "loginMessage",
       ""
@@ -452,19 +775,25 @@ $("adminLoginForm").addEventListener(
 
       await signInWithEmailAndPassword(
         auth,
-        $("adminEmail").value.trim(),
-        $("adminPassword").value
+        $("adminEmail")
+          .value
+          .trim(),
+
+        $("adminPassword")
+          .value
       );
 
     } catch (err) {
 
       console.error(err);
 
+
       msg(
         "loginMessage",
         friendlyError(err),
         true
       );
+
 
       setButtonLoading(
         button,
@@ -508,6 +837,14 @@ $("refreshBtn").addEventListener(
 
     const button =
       $("refreshBtn");
+
+
+    if (!isOnline()) {
+
+      showOfflineMessage();
+
+      return;
+    }
 
 
     setButtonLoading(
@@ -585,22 +922,26 @@ function renderFilters() {
 
 
   document
-    .querySelectorAll(".filter-btn")
-    .forEach(btn => {
+    .querySelectorAll(
+      ".filter-btn"
+    )
+    .forEach(
+      btn => {
 
-      btn.addEventListener(
-        "click",
-        () => {
+        btn.addEventListener(
+          "click",
+          () => {
 
-          currentFilter =
-            btn.dataset.subject;
+            currentFilter =
+              btn.dataset.subject;
 
-          renderFilters();
+            renderFilters();
 
-          renderAnnouncements();
-        }
-      );
-    });
+            renderAnnouncements();
+          }
+        );
+      }
+    );
 }
 
 
@@ -610,10 +951,18 @@ function renderFilters() {
 
 async function loadAnnouncements() {
 
+  if (!isOnline()) {
+
+    showOfflineMessage();
+
+    return;
+  }
+
+
   try {
 
     const snap =
-      await getDocs(
+      await getDocsFromServer(
         collection(
           db,
           "announcements"
@@ -630,31 +979,31 @@ async function loadAnnouncements() {
       );
 
 
+    /*
+     * Only save the cache after
+     * successfully receiving the
+     * current server data.
+     */
+
+    saveAnnouncementsToCache(
+      announcements
+    );
+
+
     renderFilters();
 
     renderAnnouncements();
 
+
   } catch (err) {
 
-    console.error(
-      "Unable to load announcements:",
+    console.warn(
+      "Unable to get current online announcements:",
       err
     );
 
 
-    $("announcementGrid").innerHTML = `
-      <div class="no-announcements">
-
-        <strong>
-          Unable to load announcements.
-        </strong>
-
-        <p>
-          Please check your internet connection and try again.
-        </p>
-
-      </div>
-    `;
+    showOfflineMessage();
   }
 }
 
@@ -663,7 +1012,9 @@ async function loadAnnouncements() {
    SORT HELPERS
 ========================================== */
 
-function getTimestampValue(timestamp) {
+function getTimestampValue(
+  timestamp
+) {
 
   if (!timestamp)
     return 0;
@@ -685,7 +1036,9 @@ function getTimestampValue(timestamp) {
 }
 
 
-function getDueDateValue(date) {
+function getDueDateValue(
+  date
+) {
 
   if (!date)
     return Number.MAX_SAFE_INTEGER;
@@ -732,6 +1085,7 @@ function renderAnnouncements() {
             } ${
               a.details || ""
             }`.toLowerCase();
+
 
           return searchable.includes(
             search
@@ -806,17 +1160,19 @@ function renderAnnouncements() {
 
   if (!list.length) {
 
-    $("announcementGrid").innerHTML = `
-      <div class="no-announcements">
-        No announcements found.
-      </div>
-    `;
+    $("announcementGrid")
+      .innerHTML = `
+        <div class="no-announcements">
+          No announcements found.
+        </div>
+      `;
 
     return;
   }
 
 
-  $("announcementGrid").innerHTML =
+  $("announcementGrid")
+    .innerHTML =
     list
       .map(
         a => `
@@ -892,7 +1248,8 @@ function populateSubjectSelect() {
 
 function renderOfficers() {
 
-  $("officerGrid").innerHTML =
+  $("officerGrid")
+    .innerHTML =
     officers
       .map(
         officer => `
@@ -965,6 +1322,18 @@ $("announcementForm").addEventListener(
     e.preventDefault();
 
 
+    if (!isOnline()) {
+
+      msg(
+        "adminMessage",
+        "You need an internet connection to save announcements.",
+        true
+      );
+
+      return;
+    }
+
+
     const id =
       $("announcementId")
         .value;
@@ -1034,6 +1403,7 @@ $("announcementForm").addEventListener(
           ),
           {
             ...data,
+
             createdAt:
               serverTimestamp()
           }
@@ -1049,19 +1419,24 @@ $("announcementForm").addEventListener(
 
       resetAnnouncementForm();
 
+
       await loadAnnouncements();
 
+
       await loadAdminList();
+
 
     } catch (err) {
 
       console.error(err);
+
 
       msg(
         "adminMessage",
         friendlyError(err),
         true
       );
+
 
     } finally {
 
@@ -1081,10 +1456,23 @@ $("announcementForm").addEventListener(
 
 async function loadAdminList() {
 
+  if (!isOnline()) {
+
+    $("adminList")
+      .innerHTML = `
+        <p>
+          Connect to the internet to manage announcements.
+        </p>
+      `;
+
+    return;
+  }
+
+
   try {
 
     const snap =
-      await getDocs(
+      await getDocsFromServer(
         collection(
           db,
           "announcements"
@@ -1111,7 +1499,8 @@ async function loadAdminList() {
         );
 
 
-    $("adminList").innerHTML =
+    $("adminList")
+      .innerHTML =
       list.length
 
         ? list
@@ -1206,6 +1595,7 @@ async function loadAdminList() {
         }
       );
 
+
   } catch (err) {
 
     console.error(
@@ -1213,11 +1603,13 @@ async function loadAdminList() {
       err
     );
 
-    $("adminList").innerHTML = `
-      <p>
-        Unable to load announcements.
-      </p>
-    `;
+
+    $("adminList")
+      .innerHTML = `
+        <p>
+          Unable to load announcements.
+        </p>
+      `;
   }
 }
 
@@ -1228,10 +1620,22 @@ async function loadAdminList() {
 
 async function editAnnouncement(id) {
 
+  if (!isOnline()) {
+
+    msg(
+      "adminMessage",
+      "Connect to the internet to edit announcements.",
+      true
+    );
+
+    return;
+  }
+
+
   try {
 
     const snap =
-      await getDoc(
+      await getDocFromServer(
         doc(
           db,
           "announcements",
@@ -1294,9 +1698,11 @@ async function editAnnouncement(id) {
         block: "start"
       });
 
+
   } catch (err) {
 
     console.error(err);
+
 
     msg(
       "adminMessage",
@@ -1312,6 +1718,18 @@ async function editAnnouncement(id) {
 ========================================== */
 
 async function deleteAnnouncement(id) {
+
+  if (!isOnline()) {
+
+    msg(
+      "adminMessage",
+      "Connect to the internet to delete announcements.",
+      true
+    );
+
+    return;
+  }
+
 
   if (
     !confirm(
@@ -1343,9 +1761,11 @@ async function deleteAnnouncement(id) {
 
     await loadAdminList();
 
+
   } catch (err) {
 
     console.error(err);
+
 
     msg(
       "adminMessage",
@@ -1393,15 +1813,77 @@ function resetAnnouncementForm() {
 
 
 /* ==========================================
-   IMPORTANT EVENT
+   IMPORTANT EVENT DISPLAY
+========================================== */
+
+function displayImportantEvent(
+  event
+) {
+
+  if (!event) {
+
+    $("importantEvent")
+      .classList
+      .add("hidden");
+
+    return;
+  }
+
+
+  $("eventLabel")
+    .textContent =
+    event.label || "";
+
+
+  $("eventTitle")
+    .textContent =
+    event.title || "";
+
+
+  $("eventDate")
+    .textContent =
+    event.date || "";
+
+
+  $("eventDetails")
+    .textContent =
+    event.details || "";
+
+
+  $("importantEvent")
+    .classList
+    .remove("hidden");
+}
+
+
+/* ==========================================
+   LOAD IMPORTANT EVENT
 ========================================== */
 
 async function loadImportantEvent() {
 
+  if (!isOnline()) {
+
+    const cached =
+      loadEventFromCache();
+
+
+    if (!cached) {
+
+      $("importantEvent")
+        .classList
+        .add("hidden");
+    }
+
+
+    return;
+  }
+
+
   try {
 
     const snap =
-      await getDoc(
+      await getDocFromServer(
         doc(
           db,
           "siteSettings",
@@ -1412,9 +1894,13 @@ async function loadImportantEvent() {
 
     if (!snap.exists()) {
 
+      removeEventFromCache();
+
+
       $("importantEvent")
         .classList
         .add("hidden");
+
 
       return;
     }
@@ -1424,36 +1910,50 @@ async function loadImportantEvent() {
       snap.data();
 
 
-    $("eventLabel")
-      .textContent =
-      event.label || "";
+    const cleanEvent = {
+
+      label:
+        event.label || "",
+
+      title:
+        event.title || "",
+
+      date:
+        event.date || "",
+
+      details:
+        event.details || ""
+    };
 
 
-    $("eventTitle")
-      .textContent =
-      event.title || "";
+    saveEventToCache(
+      cleanEvent
+    );
 
 
-    $("eventDate")
-      .textContent =
-      event.date || "";
+    displayImportantEvent(
+      cleanEvent
+    );
 
-
-    $("eventDetails")
-      .textContent =
-      event.details || "";
-
-
-    $("importantEvent")
-      .classList
-      .remove("hidden");
 
   } catch (err) {
 
-    console.error(
-      "Unable to load important event:",
+    console.warn(
+      "Unable to get current online event:",
       err
     );
+
+
+    const cached =
+      loadEventFromCache();
+
+
+    if (!cached) {
+
+      $("importantEvent")
+        .classList
+        .add("hidden");
+    }
   }
 }
 
@@ -1464,10 +1964,20 @@ async function loadImportantEvent() {
 
 async function loadEventForAdmin() {
 
+  if (!isOnline()) {
+
+    $("eventMessage")
+      .textContent =
+      "Connect to the internet to manage the important event.";
+
+    return;
+  }
+
+
   try {
 
     const snap =
-      await getDoc(
+      await getDocFromServer(
         doc(
           db,
           "siteSettings",
@@ -1507,6 +2017,7 @@ async function loadEventForAdmin() {
       .value =
       event.details || "";
 
+
   } catch (err) {
 
     console.error(
@@ -1526,6 +2037,18 @@ $("eventForm").addEventListener(
   async e => {
 
     e.preventDefault();
+
+
+    if (!isOnline()) {
+
+      msg(
+        "eventMessage",
+        "You need an internet connection to save the event.",
+        true
+      );
+
+      return;
+    }
 
 
     const button =
@@ -1578,13 +2101,37 @@ $("eventForm").addEventListener(
       );
 
 
+      const cleanEvent = {
+
+        label:
+          data.label,
+
+        title:
+          data.title,
+
+        date:
+          data.date,
+
+        details:
+          data.details
+      };
+
+
+      saveEventToCache(
+        cleanEvent
+      );
+
+
+      displayImportantEvent(
+        cleanEvent
+      );
+
+
       msg(
         "eventMessage",
         "Important event saved successfully."
       );
 
-
-      await loadImportantEvent();
 
     } catch (err) {
 
@@ -1599,6 +2146,7 @@ $("eventForm").addEventListener(
         friendlyError(err),
         true
       );
+
 
     } finally {
 
@@ -1619,6 +2167,18 @@ $("eventForm").addEventListener(
 $("removeEventBtn").addEventListener(
   "click",
   async () => {
+
+    if (!isOnline()) {
+
+      msg(
+        "eventMessage",
+        "Connect to the internet to remove the event.",
+        true
+      );
+
+      return;
+    }
+
 
     if (
       !confirm(
@@ -1651,7 +2211,7 @@ $("removeEventBtn").addEventListener(
       );
 
 
-      resetEventForm();
+      removeEventFromCache();
 
 
       $("importantEvent")
@@ -1659,20 +2219,26 @@ $("removeEventBtn").addEventListener(
         .add("hidden");
 
 
+      resetEventForm();
+
+
       msg(
         "eventMessage",
         "Important event removed."
       );
 
+
     } catch (err) {
 
       console.error(err);
+
 
       msg(
         "eventMessage",
         friendlyError(err),
         true
       );
+
 
     } finally {
 
@@ -1692,7 +2258,8 @@ $("removeEventBtn").addEventListener(
 
 function resetEventForm() {
 
-  $("eventForm").reset();
+  $("eventForm")
+    .reset();
 }
 
 
@@ -1714,6 +2281,23 @@ onAuthStateChanged(
 
     try {
 
+      /*
+       * IMPORTANT:
+       *
+       * There is NO hard-coded admin UID.
+       *
+       * Firebase checks:
+       *
+       * admins/{user.uid}
+       *
+       * and requires:
+       *
+       * role == "admin"
+       *
+       * This allows BOTH admin accounts
+       * to work automatically.
+       */
+
       const adminSnap =
         await getDoc(
           doc(
@@ -1725,34 +2309,47 @@ onAuthStateChanged(
 
 
       if (
-        user.uid === ADMIN_UID &&
         adminSnap.exists() &&
         adminSnap.data().role === "admin"
       ) {
 
         showAdminContent();
 
+
         populateSubjectSelect();
+
 
         await loadAdminList();
 
+
         await loadEventForAdmin();
+
 
         return;
       }
 
 
+      /*
+       * The Firebase Auth account exists,
+       * but there is no matching authorized
+       * admin document.
+       */
+
       await signOut(auth);
+
 
       showPublicSite();
 
+
       showAdminLogin();
+
 
       msg(
         "loginMessage",
         "This account is not authorized as an admin.",
         true
       );
+
 
     } catch (err) {
 
@@ -1762,11 +2359,22 @@ onAuthStateChanged(
       );
 
 
+      if (!isOnline()) {
+
+        showPublicSite();
+
+        return;
+      }
+
+
       await signOut(auth);
+
 
       showPublicSite();
 
+
       showAdminLogin();
+
 
       msg(
         "loginMessage",
@@ -1779,6 +2387,79 @@ onAuthStateChanged(
 
 
 /* ==========================================
+   ONLINE / OFFLINE EVENTS
+========================================== */
+
+window.addEventListener(
+  "offline",
+  () => {
+
+    console.log(
+      "Device is offline. Showing last viewed announcements."
+    );
+
+
+    showOfflineMessage();
+  }
+);
+
+
+window.addEventListener(
+  "online",
+  async () => {
+
+    console.log(
+      "Device is online. Updating announcements."
+    );
+
+
+    await loadAnnouncements();
+
+    await loadImportantEvent();
+  }
+);
+
+
+/* ==========================================
+   SERVICE WORKER
+========================================== */
+
+if (
+  "serviceWorker" in navigator
+) {
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      navigator.serviceWorker
+        .register(
+          "./service-worker.js"
+        )
+        .then(
+          registration => {
+
+            console.log(
+              "Service worker registered:",
+              registration.scope
+            );
+          }
+        )
+        .catch(
+          error => {
+
+            console.warn(
+              "Service worker registration failed:",
+              error
+            );
+          }
+        );
+    }
+  );
+}
+
+
+/* ==========================================
    INITIALIZE
 ========================================== */
 
@@ -1788,6 +2469,14 @@ renderOfficers();
 
 renderFilters();
 
-loadAnnouncements();
 
-loadImportantEvent();
+if (isOnline()) {
+
+  loadAnnouncements();
+
+  loadImportantEvent();
+
+} else {
+
+  showOfflineMessage();
+}
