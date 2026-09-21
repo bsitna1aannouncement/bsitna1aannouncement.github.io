@@ -20,9 +20,33 @@
 
     <div class="account-area">
 
-        <span id="accountBadge" class="account-badge">
-            Not signed in
+        <span id="accountBadge" class="account-badge hidden">
+            Admin
         </span>
+
+        <!-- ADMIN ACCESS -->
+
+        <button
+            id="adminIconBtn"
+            class="admin-icon-btn"
+            type="button"
+            aria-label="Open admin login"
+            title="Admin Login">
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true">
+
+                <circle cx="12" cy="8" r="3.2"></circle>
+
+                <path d="M5.5 19c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"></path>
+
+                <path d="M19 4.5v3"></path>
+                <path d="M17.5 6h3"></path>
+
+            </svg>
+
+        </button>
 
         <button
             id="logoutBtn"
@@ -38,98 +62,60 @@
 
 <main class="container">
 
-    <!-- LOGIN SECTION -->
-    <section id="loginSection" class="login-card">
 
-        <div class="login-tabs">
-            <button id="studentTab" class="tab active" type="button">
-                Student
-            </button>
+    <!-- ==============================
+         ADMIN LOGIN
+    =============================== -->
 
-            <button id="adminTab" class="tab" type="button">
-                Admin
-            </button>
+    <section
+        id="loginSection"
+        class="login-card hidden">
+
+        <div class="login-heading">
+
+            <span class="eyebrow">
+                ADMIN
+            </span>
+
+            <h2>
+                Admin Login
+            </h2>
+
+            <p class="small-text">
+                Sign in to manage class announcements.
+            </p>
+
         </div>
 
-        <h2 id="loginTitle">Student Login</h2>
 
-        <p id="loginHint" class="small-text">
-            Sign in to view class announcements.
-        </p>
+        <form id="adminLoginForm">
 
-
-        <!-- STUDENT LOGIN -->
-        <form id="studentLoginForm">
-
-            <label for="email">Email</label>
-
-            <input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                autocomplete="email"
-                required>
-
-
-            <label for="password">Password</label>
-
-            <div class="password-field">
-
-                <input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required>
-
-                <button
-                    type="button"
-                    class="eye-btn"
-                    id="toggleLoginPassword"
-                    aria-label="Show password">
-
-                    <img
-                        src=""
-                        alt="Show password"
-                        id="loginEyeIcon">
-
-                </button>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="btn btn-red">
-                Sign In
-            </button>
-
-        </form>
-
-
-        <!-- ADMIN LOGIN -->
-        <form id="adminLoginForm" class="hidden">
-
-            <label for="adminEmail">Email</label>
+            <label for="adminEmail">
+                Email
+            </label>
 
             <input
                 id="adminEmail"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Enter admin email"
                 autocomplete="email"
-                required>
+                required
+            >
 
 
-            <label for="adminPassword">Password</label>
+            <label for="adminPassword">
+                Password
+            </label>
 
             <div class="password-field">
 
                 <input
                     id="adminPassword"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Enter admin password"
                     autocomplete="current-password"
-                    required>
+                    required
+                >
 
                 <button
                     type="button"
@@ -137,10 +123,15 @@
                     id="toggleAdminPassword"
                     aria-label="Show password">
 
-                    <img
-                        src=""
-                        alt="Show password"
-                        id="adminEyeIcon">
+                    <svg
+                        id="adminEyeIcon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+
+                    </svg>
 
                 </button>
 
@@ -149,6 +140,7 @@
 
             <button
                 type="submit"
+                id="adminLoginSubmit"
                 class="btn btn-red">
                 Sign In
             </button>
@@ -156,155 +148,42 @@
         </form>
 
 
-        <!-- CREATE STUDENT ACCOUNT -->
-        <div id="studentRegisterBox">
-
-            <p class="small-text">
-                Don't have a student account?
-            </p>
-
-            <button
-                id="registerBtn"
-                class="btn btn-outline"
-                type="button">
-                Create Student Account
-            </button>
-
-        </div>
-
-
-        <p id="loginMessage" class="message"></p>
-
-    </section>
-
-
-    <!-- REGISTER SECTION -->
-    <section id="registerSection" class="login-card hidden">
-
-        <h2>Create Student Account</h2>
-
-        <p class="small-text">
-            Create your account to access class announcements.
-        </p>
-
-
-        <form id="registerForm">
-
-            <label for="registerUsername">
-                Username
-            </label>
-
-            <input
-                id="registerUsername"
-                type="text"
-                placeholder="Enter your username"
-                autocomplete="username"
-                required>
-
-
-            <label for="registerEmail">
-                Email
-            </label>
-
-            <input
-                id="registerEmail"
-                type="email"
-                placeholder="Enter your email"
-                autocomplete="email"
-                required>
-
-
-            <label for="registerPassword">
-                Password
-            </label>
-
-            <div class="password-field">
-
-                <input
-                    id="registerPassword"
-                    type="password"
-                    placeholder="Create a password"
-                    autocomplete="new-password"
-                    required>
-
-                <button
-                    type="button"
-                    class="eye-btn"
-                    id="toggleRegisterPassword"
-                    aria-label="Show password">
-
-                    <img
-                        src=""
-                        alt="Show password"
-                        id="registerEyeIcon">
-
-                </button>
-
-            </div>
-
-
-            <label for="registerConfirmPassword">
-                Re-enter Password
-            </label>
-
-            <div class="password-field">
-
-                <input
-                    id="registerConfirmPassword"
-                    type="password"
-                    placeholder="Re-enter your password"
-                    autocomplete="new-password"
-                    required>
-
-                <button
-                    type="button"
-                    class="eye-btn"
-                    id="toggleConfirmPassword"
-                    aria-label="Show password">
-
-                    <img
-                        src=""
-                        alt="Show password"
-                        id="confirmEyeIcon">
-
-                </button>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="btn btn-red">
-                Create Account
-            </button>
-
-        </form>
-
-
         <button
-            id="backToLoginBtn"
-            class="btn btn-outline"
+            id="closeLoginBtn"
+            class="btn btn-outline close-login-btn"
             type="button">
-            Back to Login
+            Cancel
         </button>
 
 
-        <p id="registerMessage" class="message"></p>
+        <p
+            id="loginMessage"
+            class="message">
+        </p>
 
     </section>
 
 
-    <!-- STUDENT CONTENT -->
-    <section id="studentContent" class="hidden">
+
+    <!-- ==============================
+         PUBLIC ANNOUNCEMENTS
+    =============================== -->
+
+    <section id="studentContent">
+
 
         <div class="section-heading">
 
             <div>
-                <h2>Announcements</h2>
+
+                <h2>
+                    Announcements
+                </h2>
 
                 <p>
                     Stay updated with class activities and requirements.
                 </p>
+
             </div>
 
             <button
@@ -317,7 +196,71 @@
         </div>
 
 
-        <div id="subjectFilters" class="filters"></div>
+        <!-- SEARCH + SORT -->
+
+        <div class="announcement-tools">
+
+            <div class="search-box">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true">
+
+                    <circle cx="11" cy="11" r="7"/>
+                    <path d="m16.5 16.5 4 4"/>
+
+                </svg>
+
+                <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search announcements..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="sort-box">
+
+                <label for="sortSelect">
+                    Sort
+                </label>
+
+                <select id="sortSelect">
+
+                    <option value="newest">
+                        Newest
+                    </option>
+
+                    <option value="oldest">
+                        Oldest
+                    </option>
+
+                    <option value="deadlineSoon">
+                        Deadline Soonest
+                    </option>
+
+                    <option value="deadlineLate">
+                        Deadline Latest
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUBJECT FILTERS -->
+
+        <div
+            id="subjectFilters"
+            class="filters">
+        </div>
+
+
+        <!-- ANNOUNCEMENTS -->
 
         <div
             id="announcementGrid"
@@ -326,6 +269,7 @@
 
 
         <!-- IMPORTANT EVENT -->
+
         <section
             id="importantEvent"
             class="midterm-card hidden">
@@ -335,7 +279,8 @@
                 class="eyebrow">
             </span>
 
-            <h2 id="eventTitle"></h2>
+            <h2 id="eventTitle">
+            </h2>
 
             <div
                 id="eventDate"
@@ -351,17 +296,25 @@
 
 
         <!-- CLASS OFFICERS -->
+
         <section class="officers-board">
 
             <div class="section-heading">
 
                 <div>
-                    <h2>Class Officers</h2>
 
-                    <p>BSIT NA 1A</p>
+                    <h2>
+                        Class Officers
+                    </h2>
+
+                    <p>
+                        BSIT NA 1A
+                    </p>
+
                 </div>
 
             </div>
+
 
             <div
                 id="officerGrid"
@@ -373,8 +326,15 @@
     </section>
 
 
-    <!-- ADMIN CONTENT -->
-    <section id="adminContent" class="hidden">
+
+    <!-- ==============================
+         ADMIN CONTENT
+    =============================== -->
+
+    <section
+        id="adminContent"
+        class="hidden">
+
 
         <div class="admin-banner">
 
@@ -389,19 +349,16 @@
                 </h2>
 
                 <p>
-                    Manage class announcements.
+                    Manage class announcements and important events.
                 </p>
 
             </div>
 
-
             <button
-                id="seedBtn"
-                class="btn btn-red"
+                id="backToSiteBtn"
+                class="btn btn-outline"
                 type="button">
-
-                Load Current Announcements
-
+                Back to Site
             </button>
 
         </div>
@@ -411,6 +368,7 @@
 
 
             <!-- ADD / EDIT ANNOUNCEMENT -->
+
             <section class="admin-card">
 
                 <h2 id="formTitle">
@@ -422,7 +380,8 @@
 
                     <input
                         type="hidden"
-                        id="announcementId">
+                        id="announcementId"
+                    >
 
 
                     <label for="subjectInput">
@@ -443,7 +402,8 @@
                         id="titleInput"
                         type="text"
                         placeholder="Announcement title"
-                        required>
+                        required
+                    >
 
 
                     <label for="detailsInput">
@@ -464,27 +424,24 @@
 
                     <input
                         id="dateInput"
-                        type="date">
+                        type="date"
+                    >
 
 
                     <div class="form-actions">
 
                         <button
                             type="submit"
+                            id="saveAnnouncementBtn"
                             class="btn btn-red">
-
                             Save Announcement
-
                         </button>
-
 
                         <button
                             type="button"
                             id="cancelEditBtn"
                             class="btn btn-outline hidden">
-
                             Cancel Edit
-
                         </button>
 
                     </div>
@@ -500,19 +457,24 @@
             </section>
 
 
+
             <!-- MANAGE ANNOUNCEMENTS -->
+
             <section class="admin-card">
 
                 <h2>
                     Manage Announcements
                 </h2>
 
-                <div id="adminList"></div>
+                <div id="adminList">
+                </div>
 
             </section>
 
 
-            <!-- MANAGE IMPORTANT EVENT -->
+
+            <!-- IMPORTANT EVENT -->
+
             <section class="admin-card event-admin-card">
 
                 <h2>
@@ -526,8 +488,6 @@
 
                 <form id="eventForm">
 
-
-                    <!-- EVENT LABEL -->
                     <label for="eventLabelInput">
                         Event Label
                     </label>
@@ -536,10 +496,10 @@
                         id="eventLabelInput"
                         type="text"
                         placeholder="Example: CLASS-WIDE"
-                        required>
+                        required
+                    >
 
 
-                    <!-- EVENT TITLE -->
                     <label for="eventTitleInput">
                         Event Title
                     </label>
@@ -548,10 +508,10 @@
                         id="eventTitleInput"
                         type="text"
                         placeholder="Example: F2F MIDTERM SCHEDULE"
-                        required>
+                        required
+                    >
 
 
-                    <!-- MAIN DATE -->
                     <label for="eventDateInput">
                         Main Date
                     </label>
@@ -559,10 +519,10 @@
                     <input
                         id="eventDateInput"
                         type="text"
-                        placeholder="Example: September 21–26">
+                        placeholder="Example: September 21–26"
+                    >
 
 
-                    <!-- EVENT DETAILS -->
                     <label for="eventDetailsInput">
                         Event Details
                     </label>
@@ -579,25 +539,18 @@ SEPT. 22–26">
 
                     <div class="form-actions">
 
-
-                        <!-- ADD / SAVE -->
                         <button
                             type="submit"
+                            id="saveEventBtn"
                             class="btn btn-red">
-
-                            Add / Save Event
-
+                            Save Event
                         </button>
 
-
-                        <!-- REMOVE ENTIRE EVENT -->
                         <button
                             type="button"
                             id="removeEventBtn"
                             class="btn btn-outline">
-
                             Remove Event
-
                         </button>
 
                     </div>
